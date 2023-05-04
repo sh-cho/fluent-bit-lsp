@@ -1,0 +1,25 @@
+{
+  "name": "vscode-fluent-bit",
+  "displayName": "vscode-fluent-bit",
+  "description": "fluent-bit conf file language support",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.78.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "fluent-bit",
+      "aliases": ["fluent-bit conf", "fluent-bit"],
+      "extensions": [".conf"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "fluent-bit",
+      "scopeName": "source.conf",
+      "path": "./syntaxes/fluent-bit.tmLanguage.json"
+    }]
+  }
+}
