@@ -8,6 +8,7 @@ vscode language extension for [fluent-bit](https://fluentbit.io/)
 
 ### Todos
 
+- [ ] More detailed tokenize
 - [ ] Config file snippets
 
 
