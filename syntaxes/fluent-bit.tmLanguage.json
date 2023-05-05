@@ -10,6 +10,9 @@
 		},
 		{
 			"include": "#entries"
+		},
+		{
+			"include": "#include"
 		}
 	],
 	"repository": {
@@ -25,7 +28,7 @@
 			"patterns": [
 				{
 					"name": "comment.line.number-sign.fluent-bit",
-					"match": "#.*$"
+					"match": "^\\s*#.*$"
 				}
 			]
 		},
@@ -33,7 +36,15 @@
 			"patterns": [
 				{
 					"name": "keyword.other.entry.fluent-bit",
-					"match": "^\\s*\\w+\\s+"
+					"match": "^\\s*\\b\\w+(\\.\\w+)*\\b\\s+"
+				}
+			]
+		},
+		"include": {
+			"patterns": [
+				{
+					"name": "keyword.other.include.fluent-bit",
+					"match": "^\\s*@INCLUDE\\s+"
 				}
 			]
 		}

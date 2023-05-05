@@ -6,6 +6,10 @@
   "engines": {
     "vscode": "^1.78.0"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/sh-cho/vscode-fluent-bit.git"
+  },
   "categories": [
     "Programming Languages"
   ],
@@ -14,7 +18,11 @@
       "id": "fluent-bit",
       "aliases": ["fluent-bit conf", "fluent-bit"],
       "extensions": [".conf"],
-      "configuration": "./language-configuration.json"
+      "configuration": "./language-configuration.json",
+      "icon": {
+        "light": "./images/fluent-bit.svg",
+        "dark": "./images/fluent-bit.svg"
+      }
     }],
     "grammars": [{
       "language": "fluent-bit",
