@@ -2,7 +2,7 @@
   "name": "vscode-fluent-bit",
   "displayName": "vscode-fluent-bit",
   "description": "fluent-bit conf file language support",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "engines": {
     "vscode": "^1.78.0"
   },
