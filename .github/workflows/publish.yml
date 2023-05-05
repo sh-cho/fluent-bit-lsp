@@ -13,6 +13,6 @@ jobs:
           node-version: latest
 
       - run: npm i @vscode/vsce
-      - run: vsce publish -p $VSCE_TOKEN
+      - run: npx vsce publish -p $VSCE_TOKEN
         env:
           VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
