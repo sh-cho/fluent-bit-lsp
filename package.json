@@ -2,7 +2,7 @@
   "name": "vscode-fluent-bit",
   "displayName": "vscode-fluent-bit",
   "description": "fluent-bit conf file language support for vscode",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "sh-cho",
   "icon": "./images/extension-icon.png",
   "engines": {
