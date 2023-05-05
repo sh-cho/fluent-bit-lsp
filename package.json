@@ -14,21 +14,30 @@
     "Programming Languages"
   ],
   "contributes": {
-    "languages": [{
-      "id": "fluent-bit",
-      "aliases": ["fluent-bit conf", "fluent-bit"],
-      "extensions": [".conf"],
-      "configuration": "./language-configuration.json",
-      "icon": {
-        "light": "./images/fluent-bit.svg",
-        "dark": "./images/fluent-bit.svg"
+    "languages": [
+      {
+        "id": "fluent-bit",
+        "aliases": [
+          "fluent-bit conf",
+          "fluent-bit"
+        ],
+        "extensions": [
+          ".conf"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./images/fluent-bit.svg",
+          "dark": "./images/fluent-bit.svg"
+        }
       }
-    }],
-    "grammars": [{
-      "language": "fluent-bit",
-      "scopeName": "source.fluent-bit",
-      "path": "./syntaxes/fluent-bit.tmLanguage.json"
-    }]
+    ],
+    "grammars": [
+      {
+        "language": "fluent-bit",
+        "scopeName": "source.fluent-bit",
+        "path": "./syntaxes/fluent-bit.tmLanguage.json"
+      }
+    ]
   },
   "packageManager": "pnpm@8.4.0"
 }
