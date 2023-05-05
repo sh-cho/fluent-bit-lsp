@@ -29,5 +29,6 @@
       "scopeName": "source.fluent-bit",
       "path": "./syntaxes/fluent-bit.tmLanguage.json"
     }]
-  }
+  },
+  "packageManager": "pnpm@8.4.0"
 }
