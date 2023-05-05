@@ -3,30 +3,40 @@
 	"name": "fluent-bit conf",
 	"patterns": [
 		{
-			"include": "#keywords"
+			"include": "#sections"
 		},
 		{
-			"include": "#strings"
+			"include": "#comments"
+		},
+		{
+			"include": "#entries"
 		}
 	],
 	"repository": {
-		"keywords": {
-			"patterns": [{
-				"name": "keyword.control.fluent-bit",
-				"match": "\\b(if|while|for|return)\\b"
-			}]
-		},
-		"strings": {
-			"name": "string.quoted.double.fluent-bit",
-			"begin": "\"",
-			"end": "\"",
+		"sections": {
 			"patterns": [
 				{
-					"name": "constant.character.escape.fluent-bit",
-					"match": "\\\\."
+					"name": "keyword.other.section.fluent-bit",
+					"match": "^\\[\\w+\\]"
+				}
+			]
+		},
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.line.number-sign.fluent-bit",
+					"match": "#.*$"
+				}
+			]
+		},
+		"entries": {
+			"patterns": [
+				{
+					"name": "keyword.other.entry.fluent-bit",
+					"match": "^\\s*\\w+\\s+"
 				}
 			]
 		}
 	},
-	"scopeName": "source.conf"
+	"scopeName": "source.fluent-bit"
 }
