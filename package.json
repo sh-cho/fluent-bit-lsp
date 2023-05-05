@@ -6,7 +6,7 @@
   "publisher": "sh-cho",
   "icon": "./images/extension-icon.png",
   "engines": {
-    "vscode": "^1.78.0"
+    "vscode": "^1.14.0"
   },
   "license": "SEE LICENSE IN LICENSE",
   "homepage": "https://raw.githubusercontent.com/sh-cho/vscode-fluent-bit/main/README.md",
