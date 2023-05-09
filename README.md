@@ -1,7 +1,7 @@
 # vscode-fluent-bit
 
+[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/sh-cho.vscode-fluent-bit)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit)
 [![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/sh-cho.vscode-fluent-bit)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit)
-![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/sh-cho.vscode-fluent-bit)
 ![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/sh-cho.vscode-fluent-bit)
 [![Visual Studio Marketplace Rating](https://img.shields.io/visual-studio-marketplace/r/sh-cho.vscode-fluent-bit)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit&ssr=false#review-details)
 
