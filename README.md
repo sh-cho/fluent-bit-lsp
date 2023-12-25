@@ -16,7 +16,10 @@ vscode language extension for [fluent-bit](https://fluentbit.io/)
 
 ### Todos
 
-- [ ] More detailed tokenize
+- [ ] Implement [language server](https://langserver.org/) for fluent-bit conf
+  - More detailed tokenize
+  - Static analysis
+  - etc..
 - [ ] Config file snippets
 
 
