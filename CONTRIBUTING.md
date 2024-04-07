@@ -1,8 +1,9 @@
-## Contributing to `vscode-fluent-bit`
+## Contributing to ``
 
-
-
-### Install
+### Install (using [mise](https://mise.jdx.dev/))
+```sh
+$ mise use node@20
+```
 
 ### Test
 
