@@ -8,36 +8,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a0692680-83a5-4849-8f30-946c3689df1f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/fluent-bit-lsp.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/clients/vscode/.vscode/launch.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/clients/vscode/.vscode/settings.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/clients/vscode/.vscode/tasks.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/clients/vscode/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/clients/vscode/package.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/clients/vscode/pnpm-lock.yaml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/clients/vscode/src/extension.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/clients/vscode/tsconfig.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/parser.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/semantic_token.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/launch.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscodeignore" beforeDir="false" afterPath="$PROJECT_DIR$/.vscodeignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CHANGELOG.md" beforeDir="false" afterPath="$PROJECT_DIR$/clients/vscode/CHANGELOG.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CONTRIBUTING.md" beforeDir="false" afterPath="$PROJECT_DIR$/CONTRIBUTING.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/extension-icon.png" beforeDir="false" afterPath="$PROJECT_DIR$/clients/vscode/images/extension-icon.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/images/fluent-bit.svg" beforeDir="false" afterPath="$PROJECT_DIR$/clients/vscode/images/fluent-bit.svg" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/language-configuration.json" beforeDir="false" afterPath="$PROJECT_DIR$/clients/vscode/language-configuration.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/pnpm-lock.yaml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/syntaxes/fluent-bit.tmLanguage.json" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/vsc-extension-quickstart.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/vscode/.vscode/launch.json" beforeDir="false" afterPath="$PROJECT_DIR$/clients/vscode/.vscode/launch.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/vscode/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/clients/vscode/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/clients/vscode/src/extension.ts" beforeDir="false" afterPath="$PROJECT_DIR$/clients/vscode/src/extension.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/parser.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/semantic_token.rs" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,12 +43,17 @@
   &quot;associatedIndex&quot;: 5
 }</component>
   <component name="ProjectId" id="2ejjmSNH3OGxjL5v08Pon11ZDiA" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Cargo.Run fluent-bit-language-server.executor": "Run",
+    "Cargo.Test main::tests.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.rust.reset.selective.auto.import": "true",
@@ -81,10 +65,14 @@
     "nodejs_package_manager_path": "npm",
     "org.rust.cargo.project.model.PROJECT_DISCOVERY": "true",
     "org.rust.cargo.project.model.impl.CargoExternalSystemProjectAware.subscribe.first.balloon": "",
+    "settings.editor.selected.configurable": "language.rust.cargo.check",
     "ts.external.directory.path": "/Users/seonghyeoncho/Desktop/my/github/fluent-bit-lsp/clients/vscode/node_modules/typescript/lib",
     "vue.rearranger.settings.migration": "true"
   }
 }]]></component>
+  <component name="RsExternalLinterProjectSettings">
+    <option name="runOnTheFly" value="true" />
+  </component>
   <component name="RunManager" selected="Cargo.Run fluent-bit-language-server">
     <configuration name="Run fluent-bit-language-server" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="command" value="run --package fluent-bit-language-server --bin fluent-bit-language-server" />
@@ -120,6 +108,28 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test main::tests" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package fluent-bit-language-server --bin fluent-bit-language-server tests" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Cargo.Test main::tests" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="RustProjectSettings">
     <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
@@ -134,6 +144,16 @@
       <updated>1712425040588</updated>
       <workItem from="1712425042412" duration="953000" />
       <workItem from="1712425999551" duration="7018000" />
+      <workItem from="1712579680050" duration="4185000" />
+      <workItem from="1712604339620" duration="4816000" />
+      <workItem from="1712640055470" duration="5274000" />
+      <workItem from="1720191878887" duration="1097000" />
+      <workItem from="1720964019274" duration="2557000" />
+      <workItem from="1720967261861" duration="5000" />
+      <workItem from="1720967385033" duration="1215000" />
+      <workItem from="1721029525658" duration="24658000" />
+      <workItem from="1721112583221" duration="17761000" />
+      <workItem from="1721188572264" duration="31642000" />
     </task>
     <servers />
   </component>

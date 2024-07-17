@@ -39,7 +39,24 @@
           "dark": "./images/fluent-bit.svg"
         }
       }
-    ]
+    ],
+    "configuration": {
+      "type": "object",
+      "title": "fluent-bit configuration",
+      "properties": {
+        "fluentbitLanguageServer.trace.server": {
+          "scope": "window",
+          "type": "string",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
+          "default": "off",
+          "description": "Traces the communication between VS Code and the language server."
+        }
+      }
+    }
   },
   "packageManager": "pnpm@8.4.0",
   "pnpm": {

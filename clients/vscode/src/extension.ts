@@ -29,7 +29,7 @@ import {
 let client: LanguageClient;
 
 export async function activate(context: ExtensionContext) {
-  const traceOutputChannel = window.createOutputChannel("fluent-bit language server trace");
+  // const traceOutputChannel = window.createOutputChannel("fluent-bit language server trace");
   const command = process.env.SERVER_PATH || "fluent-bit-language-server";
   const run: Executable = {
     command,
@@ -48,16 +48,25 @@ export async function activate(context: ExtensionContext) {
 
   let clientOptions: LanguageClientOptions = {
     // Register the server for plain text documents
-    documentSelector: [{ scheme: "file", language: "fluent-bit" }],
+    documentSelector: [
+      { scheme: "file", language: "fluent-bit" },
+      // { scheme: "file", pattern: "**/*.conf" },
+      // { scheme: "file", language: "plaintext" },
+    ],
     synchronize: {
       fileEvents: workspace.createFileSystemWatcher("**/.clientrc"),
     },
-    traceOutputChannel,
+    // traceOutputChannel,
   };
 
   // Create the language client and start the client.
-  client = new LanguageClient("fluent-bit-language-server", "fluent-bit language server", serverOptions, clientOptions);
-  // activateInlayHints(context);
+  client = new LanguageClient(
+    "fluentbitLanguageServer",
+    "fluent-bit language server",
+    serverOptions,
+    clientOptions
+  );
+
   console.log("Running fluent-bit extension");
   await client.start();
 }
@@ -68,37 +77,3 @@ export function deactivate(): Thenable<void> | undefined {
   }
   return client.stop();
 }
-
-export function activateInlayHints(ctx: ExtensionContext) {
-  const maybeUpdater = {
-    hintsProvider: null as Disposable | null,
-    updateHintsEventEmitter: new EventEmitter<void>(),
-
-    async onConfigChange() {
-      this.dispose();
-
-      const event = this.updateHintsEventEmitter.event;
-    },
-
-    onDidChangeTextDocument({ contentChanges, document }: TextDocumentChangeEvent) {
-      // debugger
-      // this.updateHintsEventEmitter.fire();
-    },
-
-    dispose() {
-      this.hintsProvider?.dispose();
-      this.hintsProvider = null;
-      this.updateHintsEventEmitter.dispose();
-    },
-  };
-
-  workspace.onDidChangeConfiguration(maybeUpdater.onConfigChange, maybeUpdater, ctx.subscriptions);
-  workspace.onDidChangeTextDocument(maybeUpdater.onDidChangeTextDocument, maybeUpdater, ctx.subscriptions);
-
-  maybeUpdater.onConfigChange().catch(console.error);
-}
-
-
-// const legend = new SemanticTokensLegend()
-const selector = { scheme: 'file', language: 'fluent-bit' };
-
