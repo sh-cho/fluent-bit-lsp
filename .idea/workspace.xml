@@ -11,12 +11,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.lock" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/clients/vscode/.vscode/launch.json" beforeDir="false" afterPath="$PROJECT_DIR$/clients/vscode/.vscode/launch.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/clients/vscode/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/clients/vscode/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/clients/vscode/src/extension.ts" beforeDir="false" afterPath="$PROJECT_DIR$/clients/vscode/src/extension.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/parser.rs" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/semantic_token.rs" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,6 +49,7 @@
   "keyToString": {
     "Cargo.Run fluent-bit-language-server.executor": "Run",
     "Cargo.Test main::tests.executor": "Run",
+    "Cargo.Test tests::serde.executor": "Run",
     "RunOnceActivity.OpenProjectViewOnStart": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.rust.reset.selective.auto.import": "true",
@@ -125,8 +121,26 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test tests::serde" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package fluent-bit-language-server --bin fluent-bit-language-server tests::serde -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test tests::serde" />
         <item itemvalue="Cargo.Test main::tests" />
       </list>
     </recent_temporary>
@@ -153,7 +167,10 @@
       <workItem from="1720967385033" duration="1215000" />
       <workItem from="1721029525658" duration="24658000" />
       <workItem from="1721112583221" duration="17761000" />
-      <workItem from="1721188572264" duration="31642000" />
+      <workItem from="1721188572264" duration="35637000" />
+      <workItem from="1721278040918" duration="1911000" />
+      <workItem from="1721471822289" duration="958000" />
+      <workItem from="1721635303632" duration="13193000" />
     </task>
     <servers />
   </component>
