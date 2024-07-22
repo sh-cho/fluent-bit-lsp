@@ -29,7 +29,7 @@ impl FromStr for SectionType {
             "PARSER" => SectionType::Parser,
             "FILTER" => SectionType::Filter,
             "OUTPUT" => SectionType::Output,
-            v => SectionType::Other(s.to_string()),
+            _ => SectionType::Other(s.to_string()),
         })
     }
 }

@@ -32,7 +32,7 @@ impl MyParser {
 
 #[cfg(test)]
 mod tests {
-    use tree_sitter::Parser;
+    use super::*;
 
     #[tokio::test]
     async fn parser() {
