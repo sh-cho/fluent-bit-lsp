@@ -7,8 +7,8 @@ use tower_lsp::{LspService, Server};
 use crate::language_server::Backend;
 
 mod completion;
-mod parser;
 mod language_server;
+mod parser;
 
 #[derive(Debug, PartialEq)]
 enum SectionType {
@@ -42,7 +42,8 @@ async fn main() {
     let (service, socket) = LspService::build(|client| Backend {
         client,
         map: RwLock::new(HashMap::new()),
-    }).finish();
+    })
+    .finish();
 
     Server::new(stdin, stdout, socket).serve(service).await;
 }

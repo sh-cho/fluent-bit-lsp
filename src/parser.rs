@@ -1,15 +1,17 @@
 use tree_sitter::{Parser, Tree};
 
 pub struct MyParser {
-    pub(crate) parser: Parser,  // Should I hold parser?
+    pub(crate) parser: Parser, // Should I hold parser?
     pub(crate) tree: Tree,
-    pub(crate) source_code: String,  // TODO: &str ?
+    pub(crate) source_code: String, // TODO: &str ?
 }
 
 impl MyParser {
     pub fn new(source_code: &str) -> Self {
         let mut parser = Parser::new();
-        parser.set_language(&tree_sitter_fluentbit::language()).expect("Error loading fluentbit grammar");
+        parser
+            .set_language(&tree_sitter_fluentbit::language())
+            .expect("Error loading fluentbit grammar");
 
         let tree = parser.parse(source_code, None).unwrap();
 
@@ -39,7 +41,9 @@ mod tests {
     KEY1    VALUE1
     ";
         let mut parser = Parser::new();
-        parser.set_language(&tree_sitter_fluentbit::language()).unwrap();
+        parser
+            .set_language(&tree_sitter_fluentbit::language())
+            .unwrap();
 
         let tree = parser.parse(source_code, None).unwrap();
 
