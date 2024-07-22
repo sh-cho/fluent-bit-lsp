@@ -35,7 +35,7 @@ let a = 1;
         insert_text: Some(
             r#"brokers             ${1:kafka:9092}
 topics              ${2:my_topic}
-poll_ms             ${3:500}ㅂ
+poll_ms             ${3:500}
 Buffer_Max_Size     ${4:4M}
 $0"#
             .to_string(),
