@@ -260,7 +260,7 @@ impl LanguageServer for Backend {
                         "InputLabel".to_string(),
                         "InputDetail".to_string(),
                     ));
-                    ret.append(INPUT_COMPLETIONS.clone().as_mut());
+                    ret.extend(INPUT_COMPLETIONS.iter().cloned().map(CompletionItem::from));
                 }
                 SectionType::Parser => {
                     ret.push(CompletionItem::new_simple(
