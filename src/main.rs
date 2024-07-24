@@ -9,6 +9,7 @@ use crate::language_server::Backend;
 mod completion;
 mod language_server;
 mod parser;
+mod flb_docs;
 
 #[derive(Debug, PartialEq)]
 enum SectionType {

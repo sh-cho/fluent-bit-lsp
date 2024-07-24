@@ -12,7 +12,7 @@ use tower_lsp::lsp_types::{
     TextDocumentSyncKind, Url,
 };
 use tree_sitter::Point;
-use crate::completion::INPUT_COMPLETIONS;
+use crate::completion::{INPUT_COMPLETIONS, OUTPUT_COMPLETIONS};
 
 use crate::parser::MyParser;
 use crate::SectionType;
@@ -279,6 +279,7 @@ impl LanguageServer for Backend {
                         "OutputLabel".to_string(),
                         "OutputDetail".to_string(),
                     ));
+                    ret.extend(OUTPUT_COMPLETIONS.iter().cloned().map(CompletionItem::from));
                 }
                 SectionType::Other(_) => {
                     ret.push(CompletionItem::new_simple(
