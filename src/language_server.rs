@@ -8,50 +8,47 @@ use tower_lsp::lsp_types::{
     CompletionItem, CompletionOptions, CompletionOptionsCompletionItem, CompletionParams,
     CompletionResponse, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
     DidOpenTextDocumentParams, InitializedParams, InitializeParams, InitializeResult, MessageType,
-    ServerCapabilities, TextDocumentPositionParams, TextDocumentSyncCapability,
-    TextDocumentSyncKind, Url,
+    ServerCapabilities, TextDocumentContentChangeEvent, TextDocumentPositionParams,
+    TextDocumentSyncCapability, TextDocumentSyncKind, Url,
 };
 use tree_sitter::Point;
-use crate::completion::{INPUT_COMPLETIONS, OUTPUT_COMPLETIONS};
 
-use crate::parser::MyParser;
+use crate::completion::{INPUT_COMPLETIONS, OUTPUT_COMPLETIONS};
+use crate::document::{PositionEncodingKind, TextDocument};
 use crate::SectionType;
 
 pub struct Backend {
     pub(crate) client: Client,
-    pub(crate) map: RwLock<HashMap<Url, MyParser>>,
+    pub(crate) map: RwLock<HashMap<Url, TextDocument>>,
 }
 
 impl Backend {
-    pub async fn open_or_update(&self, url: Url, source_code: &str) {
+    pub async fn open_file(&self, url: &Url, source_code: &str) {
         let mut wr = self.map.write().await;
+        wr.insert(url.clone(), TextDocument::new(source_code));
+    }
 
-        // match wr.get_mut(&url) {
-        //     Some(my_parser) => {
-        //         my_parser.update(source_code);
-        //     }
-        //     None => {
-        //         wr.insert(url, MyParser::new(source_code));
-        //     }
-        // }
-
-        // TODO: update
-        wr.insert(url, MyParser::new(source_code));
+    pub async fn update_file(&self, url: &Url, change: &TextDocumentContentChangeEvent) {
+        let mut wr = self.map.write().await;
+        if let Some(document) = wr.get_mut(url) {
+            document
+                .apply_content_change(change, PositionEncodingKind::UTF16)
+                .unwrap();
+        }
     }
 
     /// TODO: use TreeCursor
-    pub async fn get_section_type_at_point(&self, url: Url, point: &Point) -> Option<SectionType> {
+    pub async fn get_section_type_at_point(&self, url: &Url, point: &Point) -> Option<SectionType> {
         let r = self.map.read().await;
-        let Some(MyParser {
-            parser,
-            tree,
-            source_code,
-        }) = r.get(&url)
-        else {
+        let Some(TextDocument { rope, tree, .. }) = r.get(&url) else {
+            return None;
+        };
+        let Some(tree) = tree else {
+            // could this happen?
             return None;
         };
 
-        let Some(mut node) = tree.root_node().descendant_for_point_range(*point, *point) else {
+        let Some(node) = tree.root_node().descendant_for_point_range(*point, *point) else {
             return None;
         };
 
@@ -70,11 +67,12 @@ impl Backend {
         if node.kind() == "section_body" {
             if let Some(parent) = node.parent() {
                 if parent.kind() == "section" {
-                    if let Some(section_name) = parent
+                    if let Some(section_name_node) = parent
                         .child_by_field_name("header")
                         .and_then(|n| n.child_by_field_name("name"))
-                        .map(|n| n.utf8_text(source_code.as_bytes()).unwrap())
                     {
+                        let byte_range = section_name_node.byte_range();
+                        let section_name = rope.slice(byte_range).as_str().unwrap();
                         return SectionType::from_str(section_name).ok();
                     }
                 }
@@ -82,20 +80,6 @@ impl Backend {
         }
 
         None
-
-        // // bubble up to find section
-        // loop {
-        //     match node.parent() {
-        //         Some(parent) => {
-        //             todo!();
-        //
-        //             node = parent;
-        //         },
-        //         None => break,
-        //     }
-        // }
-        //
-        // todo!()
     }
 }
 
@@ -106,7 +90,8 @@ impl LanguageServer for Backend {
             server_info: None,
             capabilities: ServerCapabilities {
                 text_document_sync: Some(TextDocumentSyncCapability::Kind(
-                    TextDocumentSyncKind::FULL, // TODO: incremental
+                    // TextDocumentSyncKind::FULL, // TODO: incremental
+                    TextDocumentSyncKind::INCREMENTAL,
                 )),
                 completion_provider: Some(CompletionOptions {
                     resolve_provider: Some(false),
@@ -143,7 +128,7 @@ impl LanguageServer for Backend {
         let url = params.text_document.uri;
         let source_code = params.text_document.text.as_str();
 
-        self.open_or_update(url, source_code).await;
+        self.open_file(&url, source_code).await;
     }
 
     async fn did_change(&self, params: DidChangeTextDocumentParams) {
@@ -155,7 +140,6 @@ impl LanguageServer for Backend {
             .await;
 
         let url = params.text_document.uri;
-        let source_code = params.content_changes.last().unwrap().text.to_string();
 
         for c in params.content_changes {
             // assume only changes
@@ -163,24 +147,14 @@ impl LanguageServer for Backend {
                 self.client
                     .log_message(MessageType::INFO, format!("range: {:?}", range))
                     .await;
+
+                self.update_file(&url, &c).await;
             } else {
                 self.client
                     .log_message(MessageType::INFO, format!("full text change"))
                     .await;
             }
         }
-
-        //
-        // let old_tree = self.map.read().await
-        //     .get(&url);
-        // let new_tree = get_parser().await
-        //     .parse(source_code, old_tree)
-        //     .unwrap();
-        //
-        // self.map.write().await
-        //     .insert(url, new_tree);
-        //
-        self.open_or_update(url, source_code.as_str()).await;
     }
 
     async fn did_close(&self, params: DidCloseTextDocumentParams) {
@@ -212,24 +186,9 @@ impl LanguageServer for Backend {
             column: position.character as usize,
         };
 
-        // if let Some(tree) = self.map.read().await.get(&text_document.uri) {
-        //     let root_node = tree.root_node();
-        //     if let Some(node) = root_node.descendant_for_point_range(point, point) {
-        //         // let a = match node.kind() {
-        //         //     "abc" => "123",
-        //         //     _ => "456",
-        //         // };
-        //
-        //         // find current section
-        //         // root_node.child_containing_descendant()
-        //     }
-        // }
-        //
-        // get_parser().await.parse()
-
         // TEMP
         let section_type = self
-            .get_section_type_at_point(text_document.uri, &point)
+            .get_section_type_at_point(&text_document.uri, &point)
             .await;
         let mut ret: Vec<CompletionItem> = Vec::new();
 
@@ -280,21 +239,5 @@ impl LanguageServer for Backend {
         }
 
         Ok(Some(CompletionResponse::Array(ret)))
-
-        // temp
-        // Ok(Some(CompletionResponse::Array(
-        //     vec![
-        //         CompletionItem {
-        //             label: "label".to_string(),
-        //             kind: Some(CompletionItemKind::FUNCTION),
-        //             detail: Some("detail".to_string()),
-        //             insert_text: Some("insert_text".to_string()),
-        //             insert_text_format: Some(InsertTextFormat::SNIPPET),
-        //
-        //             ..CompletionItem::default()
-        //         },
-        //         CompletionItem::new_simple("label2".to_string(), "detail2".to_string()),
-        //     ]
-        // )))
     }
 }

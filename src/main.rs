@@ -6,10 +6,10 @@ use tower_lsp::{LspService, Server};
 
 use crate::language_server::Backend;
 
+mod assets;
 mod completion;
+mod document;
 mod language_server;
-mod parser;
-mod flb_docs;
 
 #[derive(Debug, PartialEq)]
 enum SectionType {

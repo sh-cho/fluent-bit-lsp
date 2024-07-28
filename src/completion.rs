@@ -1,9 +1,6 @@
-use std::cmp::Ordering;
-use std::collections::{BTreeSet, HashMap};
-use std::path::PathBuf;
 use std::string::ToString;
-use once_cell::sync::Lazy;
 
+use once_cell::sync::Lazy;
 use tower_lsp::lsp_types::{
     CompletionItem, CompletionItemKind, CompletionItemLabelDetails, Documentation,
     InsertTextFormat, InsertTextMode, MarkupContent, MarkupKind,
@@ -41,7 +38,7 @@ impl FlbConfigParameter {
 pub(crate) struct FlbCompletionSnippet {
     label: String,
     detail: Option<String>,
-    documentation_markdown: String,  // TODO:
+    documentation_markdown: String, // TODO:
     label_details: Option<String>,
     label_details_desc: Option<String>,
 
@@ -55,7 +52,7 @@ pub(crate) struct FlbCompletionSnippet {
 
 impl FlbCompletionSnippet {
     pub fn props_to_insert_text(&self) -> String {
-        const KEY_WIDTH: usize = 15;  // TODO: dynamic?
+        const KEY_WIDTH: usize = 15; // TODO: dynamic?
 
         let mut ret = format!("{:KEY_WIDTH$} {}\n", "Name", self.label.to_lowercase());
 
@@ -131,7 +128,11 @@ pub static INPUT_COMPLETIONS: Lazy<Vec<FlbCompletionSnippet>> = Lazy::new(|| {
         config_params: vec![
             FlbConfigParameter::new("Listen", Some("0.0.0.0"), "Set the address to listen to"),
             FlbConfigParameter::new("Port", Some("25826"), "Set the port to listen to"),
-            FlbConfigParameter::new("TypesDB", Some("/usr/share/collectd/types.db"), "Set the data specification file"),
+            FlbConfigParameter::new(
+                "TypesDB",
+                Some("/usr/share/collectd/types.db"),
+                "Set the data specification file",
+            ),
         ],
     });
 
@@ -158,7 +159,7 @@ pub static OUTPUT_COMPLETIONS: Lazy<Vec<FlbCompletionSnippet>> = Lazy::new(|| {
             FlbConfigParameter::new("topic_key", None, r#"If multiple Topics exists, the value of Topic_Key in the record will indicate the topic to use. E.g: if Topic_Key is router and the record is {"key1": 123, "router": "route_2"}, Fluent Bit will use topic route_2. Note that if the value of Topic_Key is not present in Topics, then by default the first topic in the Topics list will indicate the topic to be used."#),
             FlbConfigParameter::new("dynamic_topic", Some("Off"), "adds unknown topics (found in Topic_Key) to Topics. So in Topics only a default topic needs to be configured."),
             FlbConfigParameter::new("queue_full_retries", Some("10"), "Fluent Bit queues data into rdkafka library, if for some reason the underlying library cannot flush the records the queue might fills up blocking new addition of records. The queue_full_retries option set the number of local retries to enqueue the data. The default value is 10 times, the interval between each retry is 1 second. Setting the queue_full_retries value to 0 set's an unlimited number of retries."),
-            FlbConfigParameter::new("rdkafka.{property}", None, "{property} can be any librdkafka properties"),
+            // FlbConfigParameter::new("rdkafka.{property}", None, "{property} can be any librdkafka properties"),
             FlbConfigParameter::new("raw_log_key", None, "When using the raw format and set, the value of raw_log_key in the record will be send to kafka as the payload."),
             FlbConfigParameter::new("workers", Some("0"), "This setting improves the throughput and performance of data forwarding by enabling concurrent data processing and transmission to the kafka output broker destination."),
         ],
