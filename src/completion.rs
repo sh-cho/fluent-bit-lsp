@@ -93,20 +93,12 @@ impl From<FlbCompletionSnippet> for CompletionItem {
     }
 }
 
-// fn read_flb_docs_from_file(doc_path: &str) -> anyhow::Result<String> {
-//
-//
-//     let contents = include_str!(doc_path);
-//     Ok(contents)
-// }
-
-
 // use include_str!
 // usage: read_flb_docs("input", "kafka")
 // -> read ./flb_docs/input/kafka.md
 macro_rules! read_flb_docs {
     ($section:literal, $name:literal) => {
-        include_str!(concat!("flb_docs/", $section, "/", $name, ".md"))
+        include_str!(concat!("assets/docs/", $section, "/", $name, ".md"))
     };
 }
 

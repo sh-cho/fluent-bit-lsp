@@ -68,26 +68,13 @@ impl Backend {
             .await;
 
         if node.kind() == "section_body" {
-            self.client
-                .log_message(MessageType::INFO, format!("1"))
-                .await;
             if let Some(parent) = node.parent() {
-                self.client
-                    .log_message(MessageType::INFO, format!("2"))
-                    .await;
                 if parent.kind() == "section" {
-                    self.client
-                        .log_message(MessageType::INFO, format!("3"))
-                        .await;
-
                     if let Some(section_name) = parent
                         .child_by_field_name("header")
                         .and_then(|n| n.child_by_field_name("name"))
                         .map(|n| n.utf8_text(source_code.as_bytes()).unwrap())
                     {
-                        self.client
-                            .log_message(MessageType::INFO, format!("4: {section_name}"))
-                            .await;
                         return SectionType::from_str(section_name).ok();
                     }
                 }
