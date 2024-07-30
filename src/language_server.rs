@@ -7,15 +7,16 @@ use tower_lsp::jsonrpc::Result as JsonRpcResult;
 use tower_lsp::lsp_types::{
     CompletionItem, CompletionOptions, CompletionOptionsCompletionItem, CompletionParams,
     CompletionResponse, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
-    DidOpenTextDocumentParams, InitializedParams, InitializeParams, InitializeResult, MessageType,
-    ServerCapabilities, TextDocumentContentChangeEvent, TextDocumentPositionParams,
-    TextDocumentSyncCapability, TextDocumentSyncKind, Url,
+    DidOpenTextDocumentParams, Hover, HoverContents, HoverParams, HoverProviderCapability,
+    InitializedParams, InitializeParams, InitializeResult, MessageType, ServerCapabilities,
+    TextDocumentContentChangeEvent, TextDocumentPositionParams, TextDocumentSyncCapability,
+    TextDocumentSyncKind, Url,
 };
 use tree_sitter::Point;
 
-use crate::completion::{INPUT_COMPLETIONS, OUTPUT_COMPLETIONS};
+use crate::completion::{get_completion, get_hover_info};
+use crate::completion::SectionType;
 use crate::document::{PositionEncodingKind, TextDocument};
-use crate::SectionType;
 
 pub struct Backend {
     pub(crate) client: Client,
@@ -37,7 +38,7 @@ impl Backend {
         }
     }
 
-    /// TODO: use TreeCursor
+    /// TODO: use TreeCursor?
     pub async fn get_section_type_at_point(&self, url: &Url, point: &Point) -> Option<SectionType> {
         let r = self.map.read().await;
         let Some(TextDocument { rope, tree, .. }) = r.get(&url) else {
@@ -77,6 +78,55 @@ impl Backend {
                     }
                 }
             }
+        } else if node.kind() == "key_type" {
+            // should go up parent tree until it finds section node
+            let mut parent = node.parent();
+            while let Some(p) = parent {
+                if p.kind() == "section" {
+                    if let Some(section_name_node) = p
+                        .child_by_field_name("header")
+                        .and_then(|n| n.child_by_field_name("name"))
+                    {
+                        let byte_range = section_name_node.byte_range();
+                        let section_name = rope.slice(byte_range).as_str().unwrap();
+                        return SectionType::from_str(section_name).ok();
+                    }
+                }
+                parent = p.parent();
+            }
+        }
+
+        None
+    }
+
+    pub async fn get_key_at_point(&self, url: &Url, point: &Point) -> Option<String> {
+        let r = self.map.read().await;
+        let Some(TextDocument { rope, tree, .. }) = r.get(&url) else {
+            return None;
+        };
+        let Some(tree) = tree else {
+            return None;
+        };
+        let Some(node) = tree.root_node().descendant_for_point_range(*point, *point) else {
+            return None;
+        };
+
+        self.client
+            .log_message(
+                MessageType::INFO,
+                format!(
+                    "node.kind: {:?} / node: {:?} / point: {:?}",
+                    node.kind(),
+                    node.clone(),
+                    point
+                ),
+            )
+            .await;
+
+        if node.kind() == "key_type" {
+            let byte_range = node.byte_range();
+            let key = rope.slice(byte_range).as_str().unwrap();
+            return Some(key.to_string());
         }
 
         None
@@ -102,6 +152,7 @@ impl LanguageServer for Backend {
                         label_details_support: Some(true),
                     }),
                 }),
+                hover_provider: Some(HoverProviderCapability::Simple(true)),
                 ..ServerCapabilities::default()
             },
         })
@@ -200,44 +251,41 @@ impl LanguageServer for Backend {
             .await;
 
         if let Some(section) = section_type {
-            match section {
-                SectionType::Input => {
-                    ret.push(CompletionItem::new_simple(
-                        "InputLabel".to_string(),
-                        "InputDetail".to_string(),
-                    ));
-                    ret.extend(INPUT_COMPLETIONS.iter().cloned().map(CompletionItem::from));
-                }
-                SectionType::Parser => {
-                    ret.push(CompletionItem::new_simple(
-                        "ParserLabel".to_string(),
-                        "ParserDetail".to_string(),
-                    ));
-                }
-                SectionType::Filter => {
-                    ret.push(CompletionItem::new_simple(
-                        "FilterLabel".to_string(),
-                        "FilterDetail".to_string(),
-                    ));
-                }
-                SectionType::Output => {
-                    ret.push(CompletionItem::new_simple(
-                        "OutputLabel".to_string(),
-                        "OutputDetail".to_string(),
-                    ));
-                    ret.extend(OUTPUT_COMPLETIONS.iter().cloned().map(CompletionItem::from));
-                }
-                SectionType::Other(_) => {
-                    ret.push(CompletionItem::new_simple(
-                        "OtherLabel".to_string(),
-                        "OtherDetail".to_string(),
-                    ));
-                }
-            }
+            ret.extend(get_completion(&section));
         } else {
             return Ok(None);
         }
 
         Ok(Some(CompletionResponse::Array(ret)))
+    }
+
+    async fn hover(&self, params: HoverParams) -> JsonRpcResult<Option<Hover>> {
+        let TextDocumentPositionParams {
+            text_document,
+            position,
+        } = params.text_document_position_params;
+
+        let point = Point {
+            row: position.line as usize,
+            column: position.character as usize,
+        };
+        let Some(key) = self.get_key_at_point(&text_document.uri, &point).await else {
+            return Ok(None);
+        };
+        let Some(section_type) = self
+            .get_section_type_at_point(&text_document.uri, &point)
+            .await
+        else {
+            return Ok(None);
+        };
+
+        let Some(param_info) = get_hover_info(&section_type, &key) else {
+            return Ok(None);
+        };
+
+        Ok(Some(Hover {
+            contents: HoverContents::Markup(param_info.into()),
+            range: None,
+        }))
     }
 }
