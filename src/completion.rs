@@ -1,6 +1,4 @@
-use std::collections::HashMap;
-use std::str::FromStr;
-use std::string::ToString;
+use std::{collections::HashMap, str::FromStr, string::ToString};
 
 use once_cell::sync::Lazy;
 use tower_lsp::lsp_types::{

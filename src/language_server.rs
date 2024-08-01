@@ -1,22 +1,24 @@
-use std::collections::HashMap;
-use std::str::FromStr;
+use std::{collections::HashMap, str::FromStr};
 
 use tokio::sync::RwLock;
-use tower_lsp::{Client, LanguageServer};
-use tower_lsp::jsonrpc::Result as JsonRpcResult;
-use tower_lsp::lsp_types::{
-    CompletionItem, CompletionOptions, CompletionOptionsCompletionItem, CompletionParams,
-    CompletionResponse, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
-    DidOpenTextDocumentParams, Hover, HoverContents, HoverParams, HoverProviderCapability,
-    InitializedParams, InitializeParams, InitializeResult, MessageType, ServerCapabilities,
-    TextDocumentContentChangeEvent, TextDocumentPositionParams, TextDocumentSyncCapability,
-    TextDocumentSyncKind, Url,
+use tower_lsp::{
+    jsonrpc::Result as JsonRpcResult,
+    lsp_types::{
+        CompletionItem, CompletionOptions, CompletionOptionsCompletionItem, CompletionParams,
+        CompletionResponse, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
+        DidOpenTextDocumentParams, Hover, HoverContents, HoverParams, HoverProviderCapability,
+        InitializeParams, InitializeResult, InitializedParams, MessageType, ServerCapabilities,
+        TextDocumentContentChangeEvent, TextDocumentPositionParams, TextDocumentSyncCapability,
+        TextDocumentSyncKind, Url,
+    },
+    Client, LanguageServer,
 };
 use tree_sitter::Point;
 
-use crate::completion::{get_completion, get_hover_info};
-use crate::completion::SectionType;
-use crate::document::{PositionEncodingKind, TextDocument};
+use crate::{
+    completion::{get_completion, get_hover_info, SectionType},
+    document::{PositionEncodingKind, TextDocument},
+};
 
 pub struct Backend {
     pub(crate) client: Client,
