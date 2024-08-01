@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr, string::ToString};
+use std::{collections::HashMap, fmt::Display, str::FromStr, string::ToString};
 
 use once_cell::sync::Lazy;
 use tower_lsp::lsp_types::{
@@ -29,6 +29,20 @@ impl FromStr for SectionType {
             "OUTPUT" => SectionType::Output,
             _ => SectionType::Other(s.to_string()),
         })
+    }
+}
+
+impl Display for SectionType {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let str = match self {
+            SectionType::Input => "input".to_string(),
+            SectionType::Parser => "parser".to_string(),
+            SectionType::MultilineParser => "multiline_parser".to_string(),
+            SectionType::Filter => "filter".to_string(),
+            SectionType::Output => "output".to_string(),
+            SectionType::Other(s) => s.clone(),
+        };
+        write!(f, "{}", str)
     }
 }
 
@@ -84,11 +98,11 @@ impl FlbConfigParameter {
 #[derive(Clone)]
 pub(crate) struct FlbCompletionSnippet {
     label: String,
-    detail: Option<String>,
-    documentation_markdown: String, // TODO:
-    label_details: Option<String>,
-    label_details_desc: Option<String>,
+    documentation_markdown: String,
     config_params: Vec<FlbConfigParameter>,
+    // detail: Option<String>,
+    // label_details: Option<String>,
+    // label_details_desc: Option<String>,
 }
 
 impl FlbCompletionSnippet {
@@ -107,27 +121,27 @@ impl FlbCompletionSnippet {
     }
 }
 
-impl From<FlbCompletionSnippet> for CompletionItem {
-    fn from(snippet: FlbCompletionSnippet) -> Self {
-        let insert_text = snippet.props_to_insert_text();
+pub fn snippet_to_completion(
+    snippet: FlbCompletionSnippet,
+    section_type: &SectionType,
+) -> CompletionItem {
+    let insert_text = snippet.props_to_insert_text();
 
-        CompletionItem {
-            kind: Some(CompletionItemKind::SNIPPET),
-            label: snippet.label,
-            label_details: Some(CompletionItemLabelDetails {
-                detail: snippet.label_details,
-                description: snippet.label_details_desc,
-            }),
-            detail: snippet.detail,
-            documentation: Some(Documentation::MarkupContent(MarkupContent {
-                kind: MarkupKind::Markdown,
-                value: snippet.documentation_markdown,
-            })),
-            insert_text_mode: Some(InsertTextMode::ADJUST_INDENTATION),
-            insert_text_format: Some(InsertTextFormat::SNIPPET),
-            insert_text: Some(insert_text),
-            ..CompletionItem::default()
-        }
+    CompletionItem {
+        kind: Some(CompletionItemKind::SNIPPET),
+        label: snippet.label,
+        label_details: Some(CompletionItemLabelDetails {
+            detail: None,
+            description: Some(format!("{} plugin", section_type)),
+        }),
+        documentation: Some(Documentation::MarkupContent(MarkupContent {
+            kind: MarkupKind::Markdown,
+            value: snippet.documentation_markdown,
+        })),
+        insert_text_mode: Some(InsertTextMode::ADJUST_INDENTATION),
+        insert_text_format: Some(InsertTextFormat::SNIPPET),
+        insert_text: Some(insert_text),
+        ..CompletionItem::default()
     }
 }
 
@@ -181,14 +195,12 @@ macro_rules! read_flb_docs {
 pub static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
     let mut data = FlbData::new();
 
+    // Input
     data.add_snippet(
         SectionType::Input,
         FlbCompletionSnippet {
             label: "Kafka".to_string(),
-            label_details: Some("label_detail".to_string()),
-            detail: Some("detail_str".to_string()),
             documentation_markdown: read_flb_docs!("input", "kafka").to_string(),
-            label_details_desc: Some("label_detail_desc".to_string()),
             config_params: vec![
                 FlbConfigParameter::new("brokers", Some("kafka:9092"), "Single or multiple list of Kafka Brokers, e.g: 192.168.1.3:9092, 192.168.1.4:9092."),
                 FlbConfigParameter::new("topics", Some("my_topic"), "Single entry or list of topics separated by comma (,) that Fluent Bit will subscribe to."),
@@ -204,10 +216,7 @@ pub static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         SectionType::Input,
         FlbCompletionSnippet {
             label: "Collectd".to_string(),
-            label_details: Some("label_detail".to_string()),
-            detail: Some("detail_str".to_string()),
             documentation_markdown: read_flb_docs!("input", "collectd").to_string(),
-            label_details_desc: Some("label_detail_desc".to_string()),
             config_params: vec![
                 FlbConfigParameter::new("Listen", Some("0.0.0.0"), "Set the address to listen to"),
                 FlbConfigParameter::new("Port", Some("25826"), "Set the port to listen to"),
@@ -219,15 +228,45 @@ pub static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
             ],
         },
     );
+    data.add_snippet(
+        SectionType::Input,
+        FlbCompletionSnippet {
+            label: "CPU".to_string(),
+            documentation_markdown: read_flb_docs!("input", "cpu-metrics").to_string(),
+            config_params: vec![
+                FlbConfigParameter::new("Interval_Sec", Some("1"), "Polling interval in seconds"),
+                FlbConfigParameter::new(
+                    "Interval_NSec",
+                    Some("0"),
+                    "Polling interval in nanoseconds",
+                ),
+                FlbConfigParameter::new("PID", None, "Specify the ID (PID) of a running process in the system. By default the plugin monitors the whole system but if this option is set, it will only monitor the given process ID."),
+            ],
+        },
+    );
+    data.add_snippet(
+        SectionType::Input,
+        FlbCompletionSnippet {
+            label: "Disk".to_string(),
+            documentation_markdown: read_flb_docs!("input", "disk-io-metrics").to_string(),
+            config_params: vec![
+                FlbConfigParameter::new("Interval_Sec", Some("1"), "Polling interval in seconds"),
+                FlbConfigParameter::new(
+                    "Interval_NSec",
+                    Some("0"),
+                    "Polling interval in nanoseconds",
+                ),
+                FlbConfigParameter::new("Dev_Name", None, "Device name to limit the target. (e.g. sda). If not set, in_disk gathers information from all of disks and partitions."),
+            ],
+        },
+    );
 
+    // Output
     data.add_snippet(
         SectionType::Output,
         FlbCompletionSnippet {
             label: "Kafka".to_string(),
-            label_details: Some("label_detail".to_string()),
-            detail: Some("detail_str".to_string()),
             documentation_markdown: read_flb_docs!("output", "kafka").to_string(),
-            label_details_desc: Some("label_detail_desc".to_string()),
             config_params: vec![
                 FlbConfigParameter::new("format", Some("json"), "Specify data format, options available: json, msgpack, raw."),
                 FlbConfigParameter::new("message_key", None, "Optional key to store the message"),
@@ -249,10 +288,7 @@ pub static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         SectionType::Output,
         FlbCompletionSnippet {
             label: "File".to_string(),
-            label_details: Some("label_detail".to_string()),
-            detail: Some("detail_str".to_string()),
             documentation_markdown: read_flb_docs!("output", "file").to_string(),
-            label_details_desc: Some("label_detail_desc".to_string()),
             config_params: vec![
                 FlbConfigParameter::new("Path", None, "Directory path to store files. If not set, Fluent Bit will write the files on it's own positioned directory. note: this option was added on Fluent Bit v1.4.6"),
                 FlbConfigParameter::new("File", None, "Set file name to store the records. If not set, the file name will be the tag associated with the records."),
@@ -271,7 +307,7 @@ pub fn get_completion(section_type: &SectionType) -> Vec<CompletionItem> {
         .get_snippets(section_type)
         .unwrap_or(&vec![])
         .iter()
-        .map(|snippet| snippet.clone().into())
+        .map(|snippet| snippet_to_completion(snippet.clone(), section_type))
         .collect()
 }
 
