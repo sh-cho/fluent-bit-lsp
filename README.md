@@ -5,12 +5,15 @@
 [LSP(Language Server Protocol)](https://microsoft.github.io/language-server-protocol/) implementation
 for [fluent-bit](https://fluentbit.io/) config
 
-## [Server](./src)
+## Features
 
-`fluent-bit-language-server`
+- Auto-completion for plugins
+- Show documentation on hover
 
-- language server framework: [tower-lsp](https://github.com/ebkalderon/tower-lsp)
-- parser: [tree-sitter-fluentbit](https://github.com/sh-cho/tree-sitter-fluentbit)
+## [fluent-bit-language-server](./fluent-bit-language-server)
+
+Language server implementation made
+with [tower-lsp](https://github.com/ebkalderon/tower-lsp), [tree-sitter-fluentbit](https://github.com/sh-cho/tree-sitter-fluentbit)
 
 ## Clients
 
