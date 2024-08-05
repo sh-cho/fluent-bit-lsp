@@ -14,8 +14,8 @@ devDependencies:
     specifier: ^20.14.14
     version: 20.14.14
   '@types/vscode':
-    specifier: ^1.92.0
-    version: 1.92.0
+    specifier: ~1.78.1
+    version: 1.78.1
   '@vscode/vsce':
     specifier: ^2.31.1
     version: 2.31.1
@@ -169,8 +169,8 @@ packages:
       undici-types: 5.26.5
     dev: true
 
-  /@types/vscode@1.92.0:
-    resolution: {integrity: sha512-DcZoCj17RXlzB4XJ7IfKdPTcTGDLYvTOcTNkvtjXWF+K2TlKzHHkBEXNWQRpBIXixNEUgx39cQeTFunY0E2msw==}
+  /@types/vscode@1.78.1:
+    resolution: {integrity: sha512-wEA+54axejHu7DhcUfnFBan1IqFD1gBDxAFz8LoX06NbNDMRJv/T6OGthOs52yZccasKfN588EyffHWABkR0fg==}
     dev: true
 
   /@vscode/vsce-sign-alpine-arm64@2.0.2:
