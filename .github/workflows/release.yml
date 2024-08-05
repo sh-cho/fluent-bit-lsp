@@ -92,7 +92,7 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: clients/vscode/pnpm-lock.yaml
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install
         working-directory: clients/vscode
 
       - name: Package Extension
@@ -140,7 +140,7 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: clients/vscode/pnpm-lock.yaml
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install
         working-directory: clients/vscode
 
       - name: Package Extension (release)
@@ -218,7 +218,7 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: clients/vscode/pnpm-lock.yaml
 
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install
         working-directory: clients/vscode
 
       #      - run: pnpm dlx vsce publish --pat ${{ secrets.VSCE_TOKEN }} --packagePath ../../dist/fluent-bit-language-server-*.vsix
