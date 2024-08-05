@@ -97,7 +97,7 @@ jobs:
 
       - name: Package Extension
         if: matrix.code-target
-        run: npx vsce package -o "../../dist/fluent-bit-language-server-${{ matrix.code-target }}.vsix" --target ${{ matrix.code-target }}
+        run: pnpm dlx vsce package -o "../../dist/fluent-bit-language-server-${{ matrix.code-target }}.vsix" --target ${{ matrix.code-target }}
         working-directory: clients/vscode
 
       # XXX: I don't think no-server version is needed for now.
@@ -143,9 +143,8 @@ jobs:
       - run: pnpm install
         working-directory: clients/vscode
 
-      - name: Package Extension (release)
-        if: github.ref == 'refs/heads/release'
-        run: npx vsce package -o "../../dist/rust-analyzer-alpine-x64.vsix" --target alpine-x64
+      - name: Package Extension
+        run: pnpm dlx vsce package -o "../../dist/fluent-bit-language-server-alpine-x64.vsix" --target alpine-x64
         working-directory: clients/vscode
 
       - run: rm -rf editors/code/server
