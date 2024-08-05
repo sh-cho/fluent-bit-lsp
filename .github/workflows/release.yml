@@ -97,7 +97,7 @@ jobs:
 
       - name: Package Extension
         if: matrix.code-target
-        run: pnpm dlx vsce package -o "../../dist/fluent-bit-language-server-${{ matrix.code-target }}.vsix" --target ${{ matrix.code-target }}
+        run: pnpm dlx vsce package -o "../../dist/fluent-bit-language-server-${{ matrix.code-target }}.vsix" --target ${{ matrix.code-target }} --no-dependencies
         working-directory: clients/vscode
 
       # XXX: I don't think no-server version is needed for now.
@@ -144,7 +144,7 @@ jobs:
         working-directory: clients/vscode
 
       - name: Package Extension
-        run: pnpm dlx vsce package -o "../../dist/fluent-bit-language-server-alpine-x64.vsix" --target alpine-x64
+        run: pnpm dlx vsce package -o "../../dist/fluent-bit-language-server-alpine-x64.vsix" --target alpine-x64 --no-dependencies
         working-directory: clients/vscode
 
       - run: rm -rf editors/code/server
