@@ -21,6 +21,11 @@
     "build": "tsc -b",
     "watch": "tsc -b -w"
   },
+  "activationEvents": [
+    "workspaceContains:fluent-bit.conf",
+    "workspaceContains:*/fluent-bit.conf",
+    "onLanguage:fluent-bit"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "languages": [
