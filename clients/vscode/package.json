@@ -69,7 +69,16 @@
           "description": "Traces the communication between VS Code and the language server."
         }
       }
-    }
+    },
+    "problemMatchers": [
+      {
+        "name": "rustc",
+        "owner": "rustc",
+        "source": "rustc",
+        "fileLocation": ["autoDetect", "${workspaceRoot}"],
+        "pattern": "$rustc"
+      }
+    ]
   },
   "packageManager": "pnpm@8.15.8",
   "dependencies": {
