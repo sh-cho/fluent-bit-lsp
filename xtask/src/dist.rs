@@ -54,12 +54,30 @@ fn dist_server(sh: &Shell, target: &Target) -> anyhow::Result<()> {
     .run()?;
 
     let dst = Path::new("dist").join(&target.artifact_name);
+    gzip(&target.server_path, &dst.with_extension("gz"))?;
+    if target_name.contains("-windows-") {
+        zip(
+            &target.server_path,
+            target.symbols_path.as_ref(),
+            &dst.with_extension("zip"),
+        )?;
+    }
 
     Ok(())
 }
 
 fn dist_client(sh: &Shell, release_tag: &str, target: &Target) -> anyhow::Result<()> {
     let bundle_path = Path::new("clients").join("vscode").join("server");
+    sh.create_dir(&bundle_path)?;
+    sh.copy_file(&target.server_path, &bundle_path)?;
+    if let Some(symbols_path) = &target.symbols_path {
+        sh.copy_file(symbols_path, &bundle_path)?;
+    }
+    let _d = sh.push_dir("./editors/code");
+
+    // TODO
+    // let mut patch = Patch::new(sh, "./package.json")?;
+    
     Ok(())
 }
 
