@@ -57,7 +57,7 @@ jobs:
         if: matrix.container == 'rockylinux:8'
         shell: bash
         run: |
-          dnf install -y gcc
+          dnf install -y clang
           curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused -fsSL "https://sh.rustup.rs" | sh -s -- --profile minimal --default-toolchain none -y
           echo "${CARGO_HOME:-$HOME/.cargo}/bin" >> $GITHUB_PATH
 
