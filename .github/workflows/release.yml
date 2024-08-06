@@ -79,7 +79,8 @@ jobs:
         if: matrix.target == 'arm-unknown-linux-gnueabihf'
         run: sudo apt-get install gcc-arm-linux-gnueabihf
 
-      # TODO: dist
+      - name: Dist
+        run: cargo xtask dist --client-patch-version ${{ github.run_number }}
 
       - uses: pnpm/action-setup@v4
         with:
