@@ -51,6 +51,9 @@ jobs:
     name: dist (${{ matrix.target }})
     container: ${{ matrix.container }}
 
+    env:
+      FLB_LS_TARGET: ${{ matrix.target }}
+
     steps:
       - uses: actions/checkout@v4
       - name: Install toolchain dependencies
@@ -123,7 +126,7 @@ jobs:
 
     steps:
       - name: Install dependencies
-        run: apk add --no-cache git clang lld musl-dev nodejs npm
+        run: apk add --no-cache git clang lld musl-dev nodejs npm tar
 
       - uses: actions/checkout@v4
 
