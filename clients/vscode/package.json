@@ -5,7 +5,7 @@
   "private": true,
   "version": "0.1.1",
   "publisher": "sh-cho",
-  "icon": "./images/extension-icon.png",
+  "icon": "images/extension-icon.png",
   "engines": {
     "vscode": "^1.78.0"
   },
@@ -46,7 +46,7 @@
         "extensions": [
           ".conf"
         ],
-        "configuration": "./language-configuration.json",
+        "configuration": "language-configuration.json",
         "icon": {
           "light": "./images/fluent-bit.svg",
           "dark": "./images/fluent-bit.svg"
