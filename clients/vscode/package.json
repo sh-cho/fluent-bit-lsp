@@ -32,8 +32,7 @@
   },
   "activationEvents": [
     "workspaceContains:fluent-bit.conf",
-    "workspaceContains:*/fluent-bit.conf",
-    "onLanguage:fluent-bit"
+    "workspaceContains:*/fluent-bit.conf"
   ],
   "main": "./out/main",
   "contributes": {
