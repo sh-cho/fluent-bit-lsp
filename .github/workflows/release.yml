@@ -75,7 +75,7 @@ jobs:
         if: matrix.target == 'aarch64-unknown-linux-gnu' || matrix.target == 'arm-unknown-linux-gnueabihf'
         run: |
           sudo apt-get update
-          sudo apt-get install clang libc6-dev
+          sudo apt-get install clang gcc-multilib
 
       - name: Install AArch64 target toolchain
         if: matrix.target == 'aarch64-unknown-linux-gnu'
