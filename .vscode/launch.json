@@ -1,0 +1,24 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Run Extension (Debug Build)",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/clients/vscode"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/clients/vscode/out/**/*.js"
+      ],
+      "preLaunchTask": "Build Server and Extension",
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ],
+      "env": {
+        "SERVER_PATH": "${workspaceFolder}/target/debug/fluent-bit-language-server"
+      }
+    }
+  ]
+}
