@@ -77,7 +77,7 @@ fn dist_client(sh: &Shell, release_tag: &str, target: &Target) -> anyhow::Result
 
     // TODO
     // let mut patch = Patch::new(sh, "./package.json")?;
-    
+
     Ok(())
 }
 
