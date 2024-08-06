@@ -24,7 +24,7 @@
     "Programming Languages"
   ],
   "scripts": {
-    "vscode:prepublish": "pnpm run build-base -- --minify",
+    "vscode:prepublish": "pnpm run build-base --minify",
     "package": "vsce package -o fluent-bit-lsp.vsix",
     "build-base": "esbuild ./src/main.ts --bundle --outfile=out/main.js --external:vscode --format=cjs --platform=node --target=node20",
     "build": "pnpm run build-base --sourcemap",
