@@ -204,16 +204,14 @@ impl TextDocument {
                         .parse(self.rope.to_string(), Some(tree))
                         .expect("parse should always return a tree when the language was set and no timeout was specified"));
                 }
-
-                return Ok(());
             }
             None => {
                 self.rope = Rope::from_str(&change.text);
                 self.tree = self.parser.parse(&change.text, None);
-
-                return Ok(());
             }
         }
+
+        Ok(())
     }
 }
 
@@ -223,18 +221,18 @@ mod test {
 
     use super::*;
 
-    macro_rules! new_change {
-        ($start_line:expr, $start_char:expr, $end_line:expr, $end_char:expr, $text:expr) => {
-            &TextDocumentContentChangeEvent {
-                range: Some(Range::new(
-                    Position::new($start_line as u32, $start_char as u32),
-                    Position::new($end_line as u32, $end_char as u32),
-                )),
-                range_length: None,
-                text: $text.to_string(),
-            }
-        };
-    }
+    // macro_rules! new_change {
+    //     ($start_line:expr, $start_char:expr, $end_line:expr, $end_char:expr, $text:expr) => {
+    //         &TextDocumentContentChangeEvent {
+    //             range: Some(Range::new(
+    //                 Position::new($start_line as u32, $start_char as u32),
+    //                 Position::new($end_line as u32, $end_char as u32),
+    //             )),
+    //             range_length: None,
+    //             text: $text.to_string(),
+    //         }
+    //     };
+    // }
 
     // #[test]
     // fn test_text_document_apply_content_change() {
@@ -502,7 +500,7 @@ mod test {
 
         rope = Rope::from_str("");
 
-        assert_eq!(rope.lines().nth(0), Some(rope.slice(0..0)));
+        assert_eq!(rope.lines().next(), Some(rope.slice(0..0)));
     }
 
     fn nodes_are_equal_recursive(node1: &Node, node2: &Node) -> bool {

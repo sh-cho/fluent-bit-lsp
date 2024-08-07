@@ -44,7 +44,7 @@ impl Backend {
     /// TODO: use TreeCursor?
     pub async fn get_section_type_at_point(&self, url: &Url, point: &Point) -> Option<SectionType> {
         let r = self.map.read().await;
-        let TextDocument { rope, tree, .. } = r.get(&url)?;
+        let TextDocument { rope, tree, .. } = r.get(url)?;
         let Some(tree) = tree else {
             // could this happen?
             return None;
@@ -69,7 +69,7 @@ impl Backend {
         match node.kind() {
             "section_body" => {
                 if let Some(parent) = node.parent() {
-                    Self::get_section_name(&parent, &rope)
+                    Self::get_section_name(&parent, rope)
                         .and_then(|name| SectionType::from_str(&name).ok())
                 } else {
                     None
@@ -79,7 +79,7 @@ impl Backend {
                 // should go up parent tree until it finds section node
                 let mut parent = node.parent();
                 while let Some(p) = parent {
-                    if let Some(section_name) = Self::get_section_name(&p, &rope) {
+                    if let Some(section_name) = Self::get_section_name(&p, rope) {
                         return SectionType::from_str(&section_name).ok();
                     }
                     parent = p.parent();
@@ -106,7 +106,7 @@ impl Backend {
 
     pub async fn get_key_at_point(&self, url: &Url, point: &Point) -> Option<String> {
         let r = self.map.read().await;
-        let TextDocument { rope, tree, .. } = r.get(&url)?;
+        let TextDocument { rope, tree, .. } = r.get(url)?;
         let Some(tree) = tree else {
             return None;
         };
@@ -204,7 +204,7 @@ impl LanguageServer for Backend {
                 self.update_file(&url, &c).await;
             } else {
                 self.client
-                    .log_message(MessageType::INFO, format!("full text change"))
+                    .log_message(MessageType::INFO, "full text change".to_string())
                     .await;
             }
         }

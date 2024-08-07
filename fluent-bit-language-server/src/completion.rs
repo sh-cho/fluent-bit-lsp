@@ -161,7 +161,7 @@ impl FlbData {
     pub fn add_snippet(&mut self, section_type: SectionType, snippet: FlbCompletionSnippet) {
         self.snippets
             .entry(section_type.clone())
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(snippet.clone());
 
         // insert params
