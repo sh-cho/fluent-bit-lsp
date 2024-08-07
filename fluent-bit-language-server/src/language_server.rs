@@ -43,17 +43,13 @@ impl Backend {
     /// TODO: use TreeCursor?
     pub async fn get_section_type_at_point(&self, url: &Url, point: &Point) -> Option<SectionType> {
         let r = self.map.read().await;
-        let Some(TextDocument { rope, tree, .. }) = r.get(&url) else {
-            return None;
-        };
+        let TextDocument { rope, tree, .. } = r.get(&url)?;
         let Some(tree) = tree else {
             // could this happen?
             return None;
         };
 
-        let Some(node) = tree.root_node().descendant_for_point_range(*point, *point) else {
-            return None;
-        };
+        let node = tree.root_node().descendant_for_point_range(*point, *point)?;
 
         self.client
             .log_message(
@@ -103,15 +99,11 @@ impl Backend {
 
     pub async fn get_key_at_point(&self, url: &Url, point: &Point) -> Option<String> {
         let r = self.map.read().await;
-        let Some(TextDocument { rope, tree, .. }) = r.get(&url) else {
-            return None;
-        };
+        let TextDocument { rope, tree, .. } = r.get(&url)?;
         let Some(tree) = tree else {
             return None;
         };
-        let Some(node) = tree.root_node().descendant_for_point_range(*point, *point) else {
-            return None;
-        };
+        let node = tree.root_node().descendant_for_point_range(*point, *point)?;
 
         self.client
             .log_message(
