@@ -1,5 +1,6 @@
 use std::{collections::HashMap, str::FromStr};
 
+use ropey::Rope;
 use tokio::sync::RwLock;
 use tower_lsp::{
     jsonrpc::Result as JsonRpcResult,
@@ -13,7 +14,7 @@ use tower_lsp::{
     },
     Client, LanguageServer,
 };
-use tree_sitter::Point;
+use tree_sitter::{Node, Point};
 
 use crate::{
     completion::{get_completion, get_hover_info, SectionType},
@@ -49,7 +50,9 @@ impl Backend {
             return None;
         };
 
-        let node = tree.root_node().descendant_for_point_range(*point, *point)?;
+        let node = tree
+            .root_node()
+            .descendant_for_point_range(*point, *point)?;
 
         self.client
             .log_message(
@@ -63,37 +66,41 @@ impl Backend {
             )
             .await;
 
-        if node.kind() == "section_body" {
-            if let Some(parent) = node.parent() {
-                if parent.kind() == "section" {
-                    if let Some(section_name_node) = parent
-                        .child_by_field_name("header")
-                        .and_then(|n| n.child_by_field_name("name"))
-                    {
-                        let byte_range = section_name_node.byte_range();
-                        let section_name = rope.slice(byte_range).as_str().unwrap();
-                        return SectionType::from_str(section_name).ok();
-                    }
+        match node.kind() {
+            "section_body" => {
+                if let Some(parent) = node.parent() {
+                    Self::get_section_name(&parent, &rope)
+                        .and_then(|name| SectionType::from_str(&name).ok())
+                } else {
+                    None
                 }
             }
-        } else if node.kind() == "key_type" {
-            // should go up parent tree until it finds section node
-            let mut parent = node.parent();
-            while let Some(p) = parent {
-                if p.kind() == "section" {
-                    if let Some(section_name_node) = p
-                        .child_by_field_name("header")
-                        .and_then(|n| n.child_by_field_name("name"))
-                    {
-                        let byte_range = section_name_node.byte_range();
-                        let section_name = rope.slice(byte_range).as_str().unwrap();
-                        return SectionType::from_str(section_name).ok();
+            "key_type" => {
+                // should go up parent tree until it finds section node
+                let mut parent = node.parent();
+                while let Some(p) = parent {
+                    if let Some(section_name) = Self::get_section_name(&p, &rope) {
+                        return SectionType::from_str(&section_name).ok();
                     }
+                    parent = p.parent();
                 }
-                parent = p.parent();
+                None
+            }
+            _ => None,
+        }
+    }
+
+    fn get_section_name(node: &Node, rope: &Rope) -> Option<String> {
+        if node.kind() == "section" {
+            if let Some(section_name_node) = node
+                .child_by_field_name("header")
+                .and_then(|n| n.child_by_field_name("name"))
+            {
+                let byte_range = section_name_node.byte_range();
+                let section_name = rope.slice(byte_range).as_str().unwrap();
+                return Some(section_name.to_string());
             }
         }
-
         None
     }
 
@@ -103,7 +110,9 @@ impl Backend {
         let Some(tree) = tree else {
             return None;
         };
-        let node = tree.root_node().descendant_for_point_range(*point, *point)?;
+        let node = tree
+            .root_node()
+            .descendant_for_point_range(*point, *point)?;
 
         self.client
             .log_message(
