@@ -84,7 +84,7 @@ fn dist_client(sh: &Shell, version: &str, target: &Target) -> anyhow::Result<()>
     if let Some(symbols_path) = &target.symbols_path {
         sh.copy_file(symbols_path, &bundle_path)?;
     }
-    let _d = sh.push_dir("./editors/code");
+    let _d = sh.push_dir("./clients/vscode");
 
     // TODO
     let mut patch = Patch::new(sh, "./package.json")?;

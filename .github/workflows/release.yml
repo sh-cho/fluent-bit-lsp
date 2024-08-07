@@ -154,7 +154,7 @@ jobs:
         run: pnpm dlx vsce package -o "../../dist/vscode-fluent-bit-alpine-x64.vsix" --target alpine-x64 --no-dependencies
         working-directory: clients/vscode
 
-      - run: rm -rf editors/code/server
+      - run: rm -rf clients/vscode/server
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
