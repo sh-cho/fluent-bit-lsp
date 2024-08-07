@@ -3,7 +3,7 @@
   "displayName": "vscode-fluent-bit",
   "description": "fluent-bit language support for Visual Studio Code",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.3.0-dev",
   "publisher": "sh-cho",
   "icon": "images/extension-icon.png",
   "engines": {
@@ -75,7 +75,10 @@
         "name": "rustc",
         "owner": "rustc",
         "source": "rustc",
-        "fileLocation": ["autoDetect", "${workspaceRoot}"],
+        "fileLocation": [
+          "autoDetect",
+          "${workspaceRoot}"
+        ],
         "pattern": "$rustc"
       }
     ]

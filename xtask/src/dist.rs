@@ -16,7 +16,12 @@ use zip::{
 
 use crate::project_root;
 
+const VERSION_STABLE: &str = "0.2";
+const VERSION_DEV: &str = "0.3"; // keep this one in sync with `package.json`
+
 pub fn run_dist(sh: &Shell, client_patch_version: Option<String>) -> anyhow::Result<()> {
+    let stable = env::var("GITHUB_EVENT_NAME").unwrap_or_default().as_str() == "workflow_dispatch";
+
     let project_root = project_root();
     let target = Target::get(&project_root);
     let dist = project_root.join("dist");
@@ -24,8 +29,14 @@ pub fn run_dist(sh: &Shell, client_patch_version: Option<String>) -> anyhow::Res
     sh.create_dir(&dist)?;
 
     if let Some(patch_version) = client_patch_version {
+        let version = if stable {
+            format!("{VERSION_STABLE}.{patch_version}")
+        } else {
+            format!("{VERSION_DEV}.{patch_version}")
+        };
+
         dist_server(sh, &target)?;
-        dist_client(sh, &patch_version, &target)?;
+        dist_client(sh, &version, &target)?;
     } else {
         dist_server(sh, &target)?;
     }
@@ -66,7 +77,7 @@ fn dist_server(sh: &Shell, target: &Target) -> anyhow::Result<()> {
     Ok(())
 }
 
-fn dist_client(sh: &Shell, release_tag: &str, target: &Target) -> anyhow::Result<()> {
+fn dist_client(sh: &Shell, version: &str, target: &Target) -> anyhow::Result<()> {
     let bundle_path = Path::new("clients").join("vscode").join("server");
     sh.create_dir(&bundle_path)?;
     sh.copy_file(&target.server_path, &bundle_path)?;
@@ -76,7 +87,12 @@ fn dist_client(sh: &Shell, release_tag: &str, target: &Target) -> anyhow::Result
     let _d = sh.push_dir("./editors/code");
 
     // TODO
-    // let mut patch = Patch::new(sh, "./package.json")?;
+    let mut patch = Patch::new(sh, "./package.json")?;
+    patch.replace(
+        &format!(r#""version": "{VERSION_DEV}.0-dev""#),
+        &format!(r#""version": "{version}""#),
+    );
+    patch.commit(sh)?;
 
     Ok(())
 }
@@ -169,5 +185,42 @@ impl Target {
             symbols_path,
             artifact_name,
         }
+    }
+}
+
+struct Patch {
+    path: PathBuf,
+    original_contents: String,
+    contents: String,
+}
+
+impl Patch {
+    fn new(sh: &Shell, path: impl Into<PathBuf>) -> anyhow::Result<Patch> {
+        let path = path.into();
+        let contents = sh.read_file(&path)?;
+        Ok(Patch {
+            path,
+            original_contents: contents.clone(),
+            contents,
+        })
+    }
+
+    fn replace(&mut self, from: &str, to: &str) -> &mut Patch {
+        assert!(self.contents.contains(from));
+        self.contents = self.contents.replace(from, to);
+        self
+    }
+
+    fn commit(&self, sh: &Shell) -> anyhow::Result<()> {
+        sh.write_file(&self.path, &self.contents)?;
+        Ok(())
+    }
+}
+
+impl Drop for Patch {
+    fn drop(&mut self) {
+        // FIXME: find a way to bring this back
+        let _ = &self.original_contents;
+        // write_file(&self.path, &self.original_contents).unwrap();
     }
 }
