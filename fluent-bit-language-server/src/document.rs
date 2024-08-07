@@ -503,6 +503,7 @@ mod test {
         assert_eq!(rope.lines().next(), Some(rope.slice(0..0)));
     }
 
+    #[allow(dead_code)]
     fn nodes_are_equal_recursive(node1: &Node, node2: &Node) -> bool {
         if node1.kind() != node2.kind() {
             return false;
