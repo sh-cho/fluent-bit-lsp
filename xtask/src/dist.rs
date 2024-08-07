@@ -9,10 +9,7 @@ use std::{
 use flate2::{write::GzEncoder, Compression};
 use time::OffsetDateTime;
 use xshell::{cmd, Shell};
-use zip::{
-    write::{FileOptions, SimpleFileOptions},
-    DateTime, ZipWriter,
-};
+use zip::{write::SimpleFileOptions, DateTime, ZipWriter};
 
 use crate::project_root;
 
@@ -54,10 +51,6 @@ fn dist_server(sh: &Shell, target: &Target) -> anyhow::Result<()> {
     }
 
     let target_name = &target.name;
-    let target_dir = project_root()
-        .join("target")
-        .join(target_name)
-        .join("release");
     cmd!(
         sh,
         "cargo build --release --bin fluent-bit-language-server --target {target_name}"
