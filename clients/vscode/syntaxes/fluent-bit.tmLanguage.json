@@ -3,48 +3,79 @@
   "name": "fluent-bit conf",
   "patterns": [
     {
+      "include": "#set_directive"
+    },
+    {
+      "include": "#include_directive"
+    },
+    {
       "include": "#sections"
     },
-    // {
-    //   "include": "#comments"
-    // },
     {
-      "include": "#entries"
-    },
-    {
-      "include": "#directives"
+      "name": "comment.line.number-sign.fluent-bit",
+      "match": "^#.*$"
     }
   ],
   "repository": {
-    "sections": {
+    "set_directive": {
+      "begin": "^@SET\\s+",
+      "beginCaptures": {
+        "0": {
+          "name": "keyword.control.set.fluent-bit"
+        }
+      },
+      "end": "$",
       "patterns": [
         {
-          "name": "keyword.other.section.fluent-bit",
-          "match": "^\\[\\w+\\]"
+          "name": "variable.parameter.fluent-bit",
+          "match": "[a-zA-Z_][a-zA-Z0-9_]*"
+        },
+        {
+          "name": "keyword.operator.assignment.fluent-bit",
+          "match": "="
+        },
+        {
+          "name": "constant.numeric.fluent-bit",
+          "match": "\\b\\d+\\b"
+        },
+        {
+          "name": "string.unquoted.value.fluent-bit",
+          "match": "\\b\\S+\\b"
         }
       ]
     },
-    // "comments": {
-    //   "patterns": [
-    //     {
-    //       "name": "comment.line.number-sign.fluent-bit",
-    //       "match": "^\\s*#.*$"
-    //     }
-    //   ]
-    // },
-    "entries": {
+    "include_directive": {
+      "begin": "^@INCLUDE\\s+",
+      "beginCaptures": {
+        "0": {
+          "name": "keyword.control.include.fluent-bit"
+        }
+      },
+      "end": "$",
+      "patterns": [
+        {
+          "name": "string.unquoted.filepath.fluent-bit",
+          "match": "[^\\s]+"
+        }
+      ]
+    },
+    "sections": {
+      "name": "meta.section.fluent-bit",
+      "begin": "^\\[.*\\]$",
+      "beginCaptures": {
+        "0": {
+          "name": "entity.name.type.fluent-bit"
+        }
+      },
+      "end": "^(?=\\[|@|$)",
       "patterns": [
         {
           "name": "keyword.other.entry.fluent-bit",
           "match": "^\\s*\\b\\w+(\\.\\w+)*\\b\\s+"
-        }
-      ]
-    },
-    "directives": {
-      "patterns": [
+        },
         {
-          "name": "keyword.other.directive.fluent-bit",
-          "match": "^\\s*@(SET|INCLUDE)\\s+"
+          "name": "comment.line.number-sign.fluent-bit",
+          "match": "^\\s{4}#.*$"
         }
       ]
     }
