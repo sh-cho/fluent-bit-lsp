@@ -6,18 +6,20 @@ use tower_lsp::{
     jsonrpc::Result as JsonRpcResult,
     lsp_types::{
         CompletionItem, CompletionOptions, CompletionOptionsCompletionItem, CompletionParams,
-        CompletionResponse, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
-        DidOpenTextDocumentParams, Hover, HoverContents, HoverParams, HoverProviderCapability,
-        InitializeParams, InitializeResult, InitializedParams, MessageType, ServerCapabilities,
-        TextDocumentContentChangeEvent, TextDocumentPositionParams, TextDocumentSyncCapability,
-        TextDocumentSyncKind, Url,
+        CompletionResponse, Diagnostic, DiagnosticOptions, DiagnosticServerCapabilities,
+        DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
+        DocumentDiagnosticParams, DocumentDiagnosticReport, DocumentDiagnosticReportResult,
+        FullDocumentDiagnosticReport, Hover, HoverContents, HoverParams, HoverProviderCapability,
+        InitializeParams, InitializeResult, InitializedParams, MessageType, Position, Range,
+        RelatedFullDocumentDiagnosticReport, ServerCapabilities, TextDocumentContentChangeEvent,
+        TextDocumentPositionParams, TextDocumentSyncCapability, TextDocumentSyncKind, Url,
     },
     Client, LanguageServer,
 };
 use tree_sitter::{Node, Point};
 
 use crate::{
-    completion::{get_completion, get_hover_info, SectionType},
+    completion::{get_completion, get_hover_info, FlbSectionType},
     document::{PositionEncodingKind, TextDocument},
 };
 
@@ -41,8 +43,11 @@ impl Backend {
         }
     }
 
-    /// TODO: use TreeCursor?
-    pub async fn get_section_type_at_point(&self, url: &Url, point: &Point) -> Option<SectionType> {
+    pub async fn get_section_type_at_point(
+        &self,
+        url: &Url,
+        point: &Point,
+    ) -> Option<FlbSectionType> {
         let r = self.map.read().await;
         let TextDocument { rope, tree, .. } = r.get(url)?;
         let Some(tree) = tree else {
@@ -70,7 +75,7 @@ impl Backend {
             "section_body" => {
                 if let Some(parent) = node.parent() {
                     Self::get_section_name(&parent, rope)
-                        .and_then(|name| SectionType::from_str(&name).ok())
+                        .and_then(|name| FlbSectionType::from_str(&name).ok())
                 } else {
                     None
                 }
@@ -80,7 +85,7 @@ impl Backend {
                 let mut parent = node.parent();
                 while let Some(p) = parent {
                     if let Some(section_name) = Self::get_section_name(&p, rope) {
-                        return SectionType::from_str(&section_name).ok();
+                        return FlbSectionType::from_str(&section_name).ok();
                     }
                     parent = p.parent();
                 }
@@ -97,7 +102,7 @@ impl Backend {
                 .and_then(|n| n.child_by_field_name("name"))
             {
                 let byte_range = section_name_node.byte_range();
-                let section_name = rope.slice(byte_range).as_str().unwrap();
+                let section_name = rope.slice(byte_range).as_str()?;
                 return Some(section_name.to_string());
             }
         }
@@ -134,6 +139,83 @@ impl Backend {
 
         None
     }
+
+    // There are some false-positive ERROR nodes in AST, due to reason below
+    // (https://github.com/sh-cho/tree-sitter-fluentbit/pull/20)
+    // So only simple check is done for now...
+    //
+    // ```fluentbit
+    // [INPUT]  # ERROR COMMENT
+    //     #    ^^^^^ Comment is not allowed here
+    //     Name  tail
+    //     #...
+    // ```
+    //
+    pub async fn get_diagnostics(&self, url: &Url) -> Option<Vec<Diagnostic>> {
+        let r = self.map.read().await;
+        let TextDocument { tree, .. } = r.get(url)?;
+        let Some(tree) = tree else { return None };
+
+        let mut diagnostics = Vec::new();
+        let root = tree.root_node();
+        let mut cursor = root.walk();
+
+        // So, Find "ERROR" node and check if it has "comment" node inside.
+        // --
+        // config: [0, 0] - [29, 0]
+        //  section [7, 0] - [10, 0]
+        //     header: section_header [7, 0] - [8, 0]
+        //       name: section_header_type [7, 1] - [7, 17]
+        //       ERROR [7, 18] - [7, 25]   # check this
+        //         comment [7, 20] - [7, 25]
+        // ...
+
+        'outer: loop {
+            if cursor.node().kind() == "ERROR" {
+                let error_node = cursor.node();
+                let mut error_cursor = error_node.walk();
+                while error_cursor.goto_first_child() {
+                    if error_cursor.node().kind() == "comment" {
+                        let range = error_cursor.node().range();
+                        let diagnostic = Diagnostic::new_simple(
+                            Range::new(
+                                Position::new(
+                                    range.start_point.row as u32,
+                                    range.start_point.column as u32,
+                                ),
+                                Position::new(
+                                    range.end_point.row as u32,
+                                    range.end_point.column as u32,
+                                ),
+                            ),
+                            r"Comment is not allowed here.".to_string(),
+                        );
+                        diagnostics.push(diagnostic);
+                    }
+                }
+            }
+
+            // Traverse
+            if cursor.goto_first_child() {
+                continue 'outer;
+            }
+            if cursor.goto_next_sibling() {
+                continue 'outer;
+            }
+
+            'inner: loop {
+                if !cursor.goto_parent() {
+                    break 'outer;
+                }
+
+                if cursor.goto_next_sibling() {
+                    break 'inner;
+                }
+            }
+        }
+
+        Some(diagnostics)
+    }
 }
 
 #[tower_lsp::async_trait]
@@ -155,6 +237,15 @@ impl LanguageServer for Backend {
                     }),
                 }),
                 hover_provider: Some(HoverProviderCapability::Simple(true)),
+                diagnostic_provider: Some(DiagnosticServerCapabilities::Options(
+                    // TODO: Real diagnostics
+                    DiagnosticOptions {
+                        identifier: None,
+                        inter_file_dependencies: false,
+                        workspace_diagnostics: false,
+                        work_done_progress_options: Default::default(),
+                    },
+                )),
                 ..ServerCapabilities::default()
             },
         })
@@ -225,6 +316,37 @@ impl LanguageServer for Backend {
         self.map.write().await.remove(&url);
     }
 
+    async fn hover(&self, params: HoverParams) -> JsonRpcResult<Option<Hover>> {
+        let TextDocumentPositionParams {
+            text_document,
+            position,
+        } = params.text_document_position_params;
+
+        let point = Point {
+            row: position.line as usize,
+            column: position.character as usize,
+        };
+        let Some(key) = self.get_key_at_point(&text_document.uri, &point).await else {
+            return Ok(None);
+        };
+        let Some(section_type) = self
+            .get_section_type_at_point(&text_document.uri, &point)
+            .await
+        else {
+            return Ok(None);
+        };
+
+        let Some(param_info) = get_hover_info(&section_type, &key) else {
+            return Ok(None);
+        };
+
+        Ok(Some(Hover {
+            contents: HoverContents::Markup(param_info.into()),
+            range: None,
+        }))
+    }
+
+    // TODO: Supply snippet only when there's no "Name" entry
     async fn completion(
         &self,
         params: CompletionParams,
@@ -261,33 +383,30 @@ impl LanguageServer for Backend {
         Ok(Some(CompletionResponse::Array(ret)))
     }
 
-    async fn hover(&self, params: HoverParams) -> JsonRpcResult<Option<Hover>> {
-        let TextDocumentPositionParams {
-            text_document,
-            position,
-        } = params.text_document_position_params;
+    async fn diagnostic(
+        &self,
+        params: DocumentDiagnosticParams,
+    ) -> JsonRpcResult<DocumentDiagnosticReportResult> {
+        // for test just mark second line is error
 
-        let point = Point {
-            row: position.line as usize,
-            column: position.character as usize,
-        };
-        let Some(key) = self.get_key_at_point(&text_document.uri, &point).await else {
-            return Ok(None);
-        };
-        let Some(section_type) = self
-            .get_section_type_at_point(&text_document.uri, &point)
-            .await
-        else {
-            return Ok(None);
-        };
+        let DocumentDiagnosticParams { text_document, .. } = params;
+        let url = text_document.uri;
 
-        let Some(param_info) = get_hover_info(&section_type, &key) else {
-            return Ok(None);
-        };
+        // let diagnostics: Vec<Diagnostic> = vec![Diagnostic::new_simple(
+        //     Range::new(Position::new(1, 0), Position::new(2, 10)),
+        //     "error message".to_string(),
+        // )];
 
-        Ok(Some(Hover {
-            contents: HoverContents::Markup(param_info.into()),
-            range: None,
-        }))
+        let diagnostics = self.get_diagnostics(&url).await.unwrap_or_default();
+
+        Ok(DocumentDiagnosticReportResult::Report(
+            DocumentDiagnosticReport::Full(RelatedFullDocumentDiagnosticReport {
+                full_document_diagnostic_report: FullDocumentDiagnosticReport {
+                    items: diagnostics,
+                    result_id: None,
+                },
+                related_documents: None,
+            }),
+        ))
     }
 }

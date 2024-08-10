@@ -1,3 +1,4 @@
 group_imports = "StdExternalCrate"
 imports_granularity = "Crate"
 indent_style = "Block"
+overflow_delimited_expr = true

@@ -1,25 +1,9 @@
 import {
   workspace,
-  EventEmitter,
   ExtensionContext,
-  window,
-  InlayHintsProvider,
-  TextDocument,
-  CancellationToken,
-  Range,
-  InlayHint,
-  TextDocumentChangeEvent,
-  ProviderResult,
-  commands,
-  WorkspaceEdit,
-  TextEdit,
-  Selection,
-  Uri,
-  SemanticTokensLegend,
 } from "vscode";
 
 import {
-  Disposable,
   Executable,
   LanguageClient,
   LanguageClientOptions,

@@ -7,7 +7,7 @@ use tower_lsp::lsp_types::{
 };
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub enum SectionType {
+pub enum FlbSectionType {
     Input,
     Parser,
     MultilineParser,
@@ -17,30 +17,30 @@ pub enum SectionType {
     Other(String),
 }
 
-impl FromStr for SectionType {
+impl FromStr for FlbSectionType {
     type Err = ();
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         Ok(match s.to_uppercase().as_str() {
-            "INPUT" => SectionType::Input,
-            "PARSER" => SectionType::Parser,
-            "MULTILINE_PARSER" => SectionType::MultilineParser,
-            "FILTER" => SectionType::Filter,
-            "OUTPUT" => SectionType::Output,
-            _ => SectionType::Other(s.to_string()),
+            "INPUT" => FlbSectionType::Input,
+            "PARSER" => FlbSectionType::Parser,
+            "MULTILINE_PARSER" => FlbSectionType::MultilineParser,
+            "FILTER" => FlbSectionType::Filter,
+            "OUTPUT" => FlbSectionType::Output,
+            _ => FlbSectionType::Other(s.to_string()),
         })
     }
 }
 
-impl Display for SectionType {
+impl Display for FlbSectionType {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let str = match self {
-            SectionType::Input => "input".to_string(),
-            SectionType::Parser => "parser".to_string(),
-            SectionType::MultilineParser => "multiline_parser".to_string(),
-            SectionType::Filter => "filter".to_string(),
-            SectionType::Output => "output".to_string(),
-            SectionType::Other(s) => s.clone(),
+            FlbSectionType::Input => "input".to_string(),
+            FlbSectionType::Parser => "parser".to_string(),
+            FlbSectionType::MultilineParser => "multiline_parser".to_string(),
+            FlbSectionType::Filter => "filter".to_string(),
+            FlbSectionType::Output => "output".to_string(),
+            FlbSectionType::Other(s) => s.clone(),
         };
         write!(f, "{}", str)
     }
@@ -106,6 +106,18 @@ pub(crate) struct FlbCompletionSnippet {
 }
 
 impl FlbCompletionSnippet {
+    pub fn new(
+        label: &str,
+        documentation_markdown: &str,
+        config_params: Vec<FlbConfigParameter>,
+    ) -> Self {
+        FlbCompletionSnippet {
+            label: label.to_string(),
+            documentation_markdown: documentation_markdown.to_string(),
+            config_params,
+        }
+    }
+
     pub fn props_to_insert_text(&self) -> String {
         const KEY_WIDTH: usize = 15; // TODO: dynamic?
 
@@ -123,7 +135,7 @@ impl FlbCompletionSnippet {
 
 pub fn snippet_to_completion(
     snippet: FlbCompletionSnippet,
-    section_type: &SectionType,
+    section_type: &FlbSectionType,
 ) -> CompletionItem {
     let insert_text = snippet.props_to_insert_text();
 
@@ -145,9 +157,10 @@ pub fn snippet_to_completion(
     }
 }
 
+// static datas for completion, hover, etc
 pub struct FlbData {
-    pub(crate) snippets: HashMap<SectionType, Vec<FlbCompletionSnippet>>,
-    pub(crate) params: HashMap<(SectionType, String), FlbConfigParameterInfo>,
+    pub(crate) snippets: HashMap<FlbSectionType, Vec<FlbCompletionSnippet>>,
+    pub(crate) params: HashMap<(FlbSectionType, String), FlbConfigParameterInfo>,
 }
 
 impl FlbData {
@@ -158,7 +171,7 @@ impl FlbData {
         }
     }
 
-    pub fn add_snippet(&mut self, section_type: SectionType, snippet: FlbCompletionSnippet) {
+    pub fn add_snippet(&mut self, section_type: FlbSectionType, snippet: FlbCompletionSnippet) {
         self.snippets
             .entry(section_type.clone())
             .or_default()
@@ -173,13 +186,16 @@ impl FlbData {
         });
     }
 
-    pub fn get_snippets(&self, section_type: &SectionType) -> Option<&Vec<FlbCompletionSnippet>> {
+    pub fn get_snippets(
+        &self,
+        section_type: &FlbSectionType,
+    ) -> Option<&Vec<FlbCompletionSnippet>> {
         self.snippets.get(section_type)
     }
 
     pub fn get_parameter_info(
         &self,
-        section_type: &SectionType,
+        section_type: &FlbSectionType,
         key: &str,
     ) -> Option<&FlbConfigParameterInfo> {
         self.params.get(&(section_type.clone(), key.to_string()))
@@ -190,119 +206,97 @@ macro_rules! read_flb_docs {
     ($section:literal, $name:literal) => {
         include_str!(concat!("assets/docs/", $section, "/", $name, ".md"))
     };
+
+    ($path:literal) => {
+        include_str!(concat!("assets/docs/", $path, ".md"))
+    };
 }
 
-pub static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
+macro_rules! add_snippet {
+    (
+        $flb_data:expr,
+        $section:expr,
+        $label:expr,
+        $doc_path:expr,
+        [
+            $(
+                ($key:expr, $default:expr, $desc:expr)
+            ),*
+            $(,)?
+        ]
+    ) => {
+        let config_params = vec![
+            $(
+                FlbConfigParameter::new($key, $default, $desc),
+            )*
+        ];
+        let snippet = FlbCompletionSnippet::new($label, read_flb_docs!($doc_path), config_params);
+        $flb_data.add_snippet($section, snippet);
+    };
+}
+
+#[rustfmt::skip::macros(add_snippet)]
+static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
     let mut data = FlbData::new();
 
     // Input
-    data.add_snippet(
-        SectionType::Input,
-        FlbCompletionSnippet {
-            label: "Kafka".to_string(),
-            documentation_markdown: read_flb_docs!("input", "kafka").to_string(),
-            config_params: vec![
-                FlbConfigParameter::new("brokers", Some("kafka:9092"), "Single or multiple list of Kafka Brokers, e.g: 192.168.1.3:9092, 192.168.1.4:9092."),
-                FlbConfigParameter::new("topics", Some("my_topic"), "Single entry or list of topics separated by comma (,) that Fluent Bit will subscribe to."),
-                FlbConfigParameter::new("format", Some("none"), r#"Serialization format of the messages. If set to "json", the payload will be parsed as json."#),
-                FlbConfigParameter::new("client_id", None, "Client id passed to librdkafka."),
-                FlbConfigParameter::new("group_id", None, "Client id passed to librdkafka."),
-                FlbConfigParameter::new("poll_ms", Some("500"), "Kafka brokers polling interval in milliseconds."),
-                FlbConfigParameter::new("Buffer_Max_Size", Some("4M"), "Specify the maximum size of buffer per cycle to poll kafka messages from subscribed topics. To increase throughput, specify larger size."),
-            ],
-        },
-    );
-    data.add_snippet(
-        SectionType::Input,
-        FlbCompletionSnippet {
-            label: "Collectd".to_string(),
-            documentation_markdown: read_flb_docs!("input", "collectd").to_string(),
-            config_params: vec![
-                FlbConfigParameter::new("Listen", Some("0.0.0.0"), "Set the address to listen to"),
-                FlbConfigParameter::new("Port", Some("25826"), "Set the port to listen to"),
-                FlbConfigParameter::new(
-                    "TypesDB",
-                    Some("/usr/share/collectd/types.db"),
-                    "Set the data specification file",
-                ),
-            ],
-        },
-    );
-    data.add_snippet(
-        SectionType::Input,
-        FlbCompletionSnippet {
-            label: "CPU".to_string(),
-            documentation_markdown: read_flb_docs!("input", "cpu-metrics").to_string(),
-            config_params: vec![
-                FlbConfigParameter::new("Interval_Sec", Some("1"), "Polling interval in seconds"),
-                FlbConfigParameter::new(
-                    "Interval_NSec",
-                    Some("0"),
-                    "Polling interval in nanoseconds",
-                ),
-                FlbConfigParameter::new("PID", None, "Specify the ID (PID) of a running process in the system. By default the plugin monitors the whole system but if this option is set, it will only monitor the given process ID."),
-            ],
-        },
-    );
-    data.add_snippet(
-        SectionType::Input,
-        FlbCompletionSnippet {
-            label: "Disk".to_string(),
-            documentation_markdown: read_flb_docs!("input", "disk-io-metrics").to_string(),
-            config_params: vec![
-                FlbConfigParameter::new("Interval_Sec", Some("1"), "Polling interval in seconds"),
-                FlbConfigParameter::new(
-                    "Interval_NSec",
-                    Some("0"),
-                    "Polling interval in nanoseconds",
-                ),
-                FlbConfigParameter::new("Dev_Name", None, "Device name to limit the target. (e.g. sda). If not set, in_disk gathers information from all of disks and partitions."),
-            ],
-        },
-    );
+    add_snippet!(data, FlbSectionType::Input, "Kafka", "input/kafka", [
+        ("brokers", Some("kafka:9092"), "Single or multiple list of Kafka Brokers, e.g: 192.168.1.3:9092, 192.168.1.4:9092."),
+        ("topics", Some("my_topic"), "Single entry or list of topics separated by comma (,) that Fluent Bit will subscribe to."),
+        ("format", Some("none"), r#"Serialization format of the messages. If set to "json", the payload will be parsed as json."#),
+        ("client_id", None, "Client id passed to librdkafka."),
+        ("group_id", None, "Group id passed to librdkafka."),
+        ("poll_ms", Some("500"), "Kafka brokers polling interval in milliseconds."),
+        ("Buffer_Max_Size", Some("4M"), "Specify the maximum size of buffer per cycle to poll kafka messages from subscribed topics. To increase throughput, specify larger size."),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Collectd", "input/collectd", [
+        ("Listen", Some("0.0.0.0"), "Set the address to listen to"),
+        ("Port", Some("25826"), "Set the port to listen to"),
+        ("TypesDB", Some("/usr/share/collectd/types.db"), "Set the data specification file"),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "CPU", "input/cpu-metrics", [
+        ("Interval_Sec", Some("1"), "Polling interval in seconds"),
+        ("Interval_NSec", Some("0"), "Polling interval in nanoseconds"),
+        ("PID", None, "Specify the ID (PID) of a running process in the system. By default the plugin monitors the whole system but if this option is set, it will only monitor the given process ID."),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Disk", "input/disk-io-metrics", [
+        ("Interval_Sec", Some("1"), "Polling interval in seconds"),
+        ("Interval_NSec", Some("0"), "Polling interval in nanoseconds"),
+        ("Dev_Name", None, "Device name to limit the target. (e.g. sda). If not set, in_disk gathers information from all of disks and partitions."),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Docker", "input/docker-metrics", [
+        ("Interval_Sec", Some("1"), "Polling interval in seconds"),
+        ("Include", None, "A space-separated list of containers to include"),
+        ("Exclude", None, "A space-separated list of containers to exclude"),
+    ]);
 
     // Output
-    data.add_snippet(
-        SectionType::Output,
-        FlbCompletionSnippet {
-            label: "Kafka".to_string(),
-            documentation_markdown: read_flb_docs!("output", "kafka").to_string(),
-            config_params: vec![
-                FlbConfigParameter::new("format", Some("json"), "Specify data format, options available: json, msgpack, raw."),
-                FlbConfigParameter::new("message_key", None, "Optional key to store the message"),
-                FlbConfigParameter::new("message_key_field", None, "If set, the value of Message_Key_Field in the record will indicate the message key. If not set nor found in the record, Message_Key will be used (if set)."),
-                FlbConfigParameter::new("timestamp_key", Some("@timestamp"), "Set the key to store the record timestamp"),
-                FlbConfigParameter::new("timestamp_format", Some("double"), "Specify timestamp format, should be 'double', 'iso8601' (seconds precision) or 'iso8601_ns' (fractional seconds precision)"),
-                FlbConfigParameter::new("brokers", None, "Single or multiple list of Kafka Brokers, e.g: 192.168.1.3:9092, 192.168.1.4:9092."),
-                FlbConfigParameter::new("topics", Some("fluent-bit"), "Single entry or list of topics separated by comma (,) that Fluent Bit will use to send messages to Kafka. If only one topic is set, that one will be used for all records. Instead if multiple topics exists, the one set in the record by Topic_Key will be used."),
-                FlbConfigParameter::new("topic_key", None, r#"If multiple Topics exists, the value of Topic_Key in the record will indicate the topic to use. E.g: if Topic_Key is router and the record is {"key1": 123, "router": "route_2"}, Fluent Bit will use topic route_2. Note that if the value of Topic_Key is not present in Topics, then by default the first topic in the Topics list will indicate the topic to be used."#),
-                FlbConfigParameter::new("dynamic_topic", Some("Off"), "adds unknown topics (found in Topic_Key) to Topics. So in Topics only a default topic needs to be configured."),
-                FlbConfigParameter::new("queue_full_retries", Some("10"), "Fluent Bit queues data into rdkafka library, if for some reason the underlying library cannot flush the records the queue might fills up blocking new addition of records. The queue_full_retries option set the number of local retries to enqueue the data. The default value is 10 times, the interval between each retry is 1 second. Setting the queue_full_retries value to 0 set's an unlimited number of retries."),
-                FlbConfigParameter::new("raw_log_key", None, "When using the raw format and set, the value of raw_log_key in the record will be send to kafka as the payload."),
-                FlbConfigParameter::new("workers", Some("0"), "This setting improves the throughput and performance of data forwarding by enabling concurrent data processing and transmission to the kafka output broker destination."),
-                // FlbConfigParameter::new("rdkafka.{property}", None, "{property} can be any librdkafka properties"),
-            ],
-        }
-    );
-    data.add_snippet(
-        SectionType::Output,
-        FlbCompletionSnippet {
-            label: "File".to_string(),
-            documentation_markdown: read_flb_docs!("output", "file").to_string(),
-            config_params: vec![
-                FlbConfigParameter::new("Path", None, "Directory path to store files. If not set, Fluent Bit will write the files on it's own positioned directory. note: this option was added on Fluent Bit v1.4.6"),
-                FlbConfigParameter::new("File", None, "Set file name to store the records. If not set, the file name will be the tag associated with the records."),
-                FlbConfigParameter::new("Format", None, "The format of the file content. See also Format section. Default: out_file."),
-                FlbConfigParameter::new("Mkdir", None, "Recursively create output directory if it does not exist. Permissions set to 0755."),
-                FlbConfigParameter::new("Workers", Some("1"), "Enables dedicated thread(s) for this output. Default value is set since version 1.8.13. For previous versions is 0."),
-            ],
-        }
-    );
+    add_snippet!(data, FlbSectionType::Output, "Kafka", "output/kafka", [
+        ("format", Some("json"), "Specify data format, options available: json, msgpack, raw."),
+        ("message_key", None, "Optional key to store the message"),
+        ("message_key_field", None, "If set, the value of Message_Key_Field in the record will indicate the message key. If not set nor found in the record, Message_Key will be used (if set)."),
+        ("timestamp_key", Some("@timestamp"), "Set the key to store the record timestamp"),
+        ("timestamp_format", Some("double"), "Specify timestamp format, should be 'double', 'iso8601' (seconds precision) or 'iso8601_ns' (fractional seconds precision)"),
+        ("brokers", None, "Single or multiple list of Kafka Brokers, e.g: 192.168.1.3:9092, 192.168.1.4:9092."),
+        ("topics", Some("fluent-bit"), "Single entry or list of topics separated by comma (,) that Fluent Bit will use to send messages to Kafka. If only one topic is set, that one will be used for all records. Instead if multiple topics exists, the one set in the record by Topic_Key will be used."),
+        ("topic_key", None, r#"If multiple Topics exists, the value of Topic_Key in the record will indicate the topic to use. E.g: if Topic_Key is router and the record is {"key1": 123, "router": "route_2"}, Fluent Bit will use topic route_2. Note that if the value of Topic_Key is not present in Topics, then by default the first topic in the Topics list will indicate the topic to be used."#),
+        ("dynamic_topic", Some("Off"), "adds unknown topics (found in Topic_Key) to Topics. So in Topics only a default topic needs to be configured."),
+        ("queue_full_retries", Some("10"), "Fluent Bit queues data into rdkafka library, if for some reason the underlying library cannot flush the records the queue might fills up blocking new addition of records. The queue_full_retries option set the number of local retries to enqueue the data. The default value is 10 times, the interval between each retry is 1 second. Setting the queue_full_retries value to 0 set's an unlimited number of retries."),
+        ("raw_log_key", None, "When using the raw format and set, the value of raw_log_key in the record will be send to kafka as the payload."),
+        ("workers", Some("0"), "This setting improves the throughput and performance of data forwarding by enabling concurrent data processing and transmission to the kafka output broker destination."),
+    ]);
+    add_snippet!(data, FlbSectionType::Output, "File", "output/file", [
+        ("Path", None, "Directory path to store files. If not set, Fluent Bit will write the files on it's own positioned directory. note: this option was added on Fluent Bit v1.4.6"),
+        ("File", None, "Set file name to store the records. If not set, the file name will be the tag associated with the records."),
+        ("Format", None, "The format of the file content. See also Format section. Default: out_file."),
+        ("Mkdir", None, "Recursively create output directory if it does not exist. Permissions set to 0755."),
+        ("Workers", Some("1"), "Enables dedicated thread(s) for this output. Default value is set since version 1.8.13. For previous versions is 0."),
+    ]);
 
     data
 });
 
-pub fn get_completion(section_type: &SectionType) -> Vec<CompletionItem> {
+pub fn get_completion(section_type: &FlbSectionType) -> Vec<CompletionItem> {
     FLB_DATA
         .get_snippets(section_type)
         .unwrap_or(&vec![])
@@ -311,7 +305,7 @@ pub fn get_completion(section_type: &SectionType) -> Vec<CompletionItem> {
         .collect()
 }
 
-pub fn get_hover_info(section_type: &SectionType, key: &str) -> Option<FlbConfigParameterInfo> {
+pub fn get_hover_info(section_type: &FlbSectionType, key: &str) -> Option<FlbConfigParameterInfo> {
     FLB_DATA
         .get_parameter_info(section_type, key.to_lowercase().as_str())
         .cloned()
@@ -323,7 +317,7 @@ mod tests {
 
     #[test]
     fn parse_section_name_to_enum() {
-        let section: SectionType = str::parse("input").unwrap();
-        assert_eq!(section, SectionType::Input);
+        let section: FlbSectionType = str::parse("input").unwrap();
+        assert_eq!(section, FlbSectionType::Input);
     }
 }
