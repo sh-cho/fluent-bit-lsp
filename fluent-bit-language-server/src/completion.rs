@@ -264,10 +264,18 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         ("Interval_NSec", Some("0"), "Polling interval in nanoseconds"),
         ("Dev_Name", None, "Device name to limit the target. (e.g. sda). If not set, in_disk gathers information from all of disks and partitions."),
     ]);
-    add_snippet!(data, FlbSectionType::Input, "Docker", "input/docker-metrics", [
+    add_snippet!(data, FlbSectionType::Input, "Docker Metrics", "input/docker-metrics", [
         ("Interval_Sec", Some("1"), "Polling interval in seconds"),
         ("Include", None, "A space-separated list of containers to include"),
         ("Exclude", None, "A space-separated list of containers to exclude"),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Docker Events", "input/docker-events", [
+        ("Unix_Path", Some("/var/run/docker.sock"), "The docker socket unix path"),
+        ("Buffer_Size", Some("8192"), "The size of the buffer used to read docker events (in bytes)"),
+        ("Parser", None, "Specify the name of a parser to interpret the entry as a structured message."),
+        ("Key", Some("message"), "When a message is unstructured (no parser applied), it's appended as a string under the key name message."),
+        ("Reconnect.Retry_limits", Some("5"), "The maximum number of retries allowed. The plugin tries to reconnect with docker socket when EOF is detected."),
+        ("Reconnect.Retry_interval", Some("1"), "The retrying interval. Unit is second."),
     ]);
 
     // Output
