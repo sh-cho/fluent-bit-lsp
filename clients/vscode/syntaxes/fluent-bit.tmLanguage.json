@@ -1,0 +1,53 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "fluent-bit conf",
+  "patterns": [
+    {
+      "include": "#sections"
+    },
+    // {
+    //   "include": "#comments"
+    // },
+    {
+      "include": "#entries"
+    },
+    {
+      "include": "#directives"
+    }
+  ],
+  "repository": {
+    "sections": {
+      "patterns": [
+        {
+          "name": "keyword.other.section.fluent-bit",
+          "match": "^\\[\\w+\\]"
+        }
+      ]
+    },
+    // "comments": {
+    //   "patterns": [
+    //     {
+    //       "name": "comment.line.number-sign.fluent-bit",
+    //       "match": "^\\s*#.*$"
+    //     }
+    //   ]
+    // },
+    "entries": {
+      "patterns": [
+        {
+          "name": "keyword.other.entry.fluent-bit",
+          "match": "^\\s*\\b\\w+(\\.\\w+)*\\b\\s+"
+        }
+      ]
+    },
+    "directives": {
+      "patterns": [
+        {
+          "name": "keyword.other.directive.fluent-bit",
+          "match": "^\\s*@(SET|INCLUDE)\\s+"
+        }
+      ]
+    }
+  },
+  "scopeName": "source.fluent-bit"
+}
