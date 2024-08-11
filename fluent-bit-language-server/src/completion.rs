@@ -235,10 +235,12 @@ macro_rules! add_snippet {
     };
 }
 
+// XXX: better way than copy-paste manually?
 #[rustfmt::skip::macros(add_snippet)]
 static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
     let mut data = FlbData::new();
 
+    //////////////////////////////////////////////////////////////////////////////////////////
     // Input
     add_snippet!(data, FlbSectionType::Input, "Kafka", "input/kafka", [
         ("brokers", Some("kafka:9092"), "Single or multiple list of Kafka Brokers, e.g: 192.168.1.3:9092, 192.168.1.4:9092."),
@@ -277,7 +279,74 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         ("Reconnect.Retry_limits", Some("5"), "The maximum number of retries allowed. The plugin tries to reconnect with docker socket when EOF is detected."),
         ("Reconnect.Retry_interval", Some("1"), "The retrying interval. Unit is second."),
     ]);
+    add_snippet!(data, FlbSectionType::Input, "Dummy", "input/dummy", [
+        ("Dummy", Some(r#"{"message":"dummy"}"#), "Dummy JSON record"),
+        ("Metadata", Some("{}"), "Dummy JSON metadata"),
+        ("Start_time_sec", Some("0"), "Dummy base timestamp in seconds"),
+        ("Start_time_nsec", Some("0"), "Dummy base timestamp in nanoseconds"),
+        ("Rate", Some("1"), "Rate at which messages are generated expressed in how many times per second"),
+        ("Interval_Sec", Some("0"), "Set seconds of time interval at which every message is generated. If set, `Rate` configuration will be ignored"),
+        ("Interval_nsec", Some("0"), "Set nanoseconds of time interval at which every message is generated. If set, `Rate` configuration will be ignored"),
+        ("Samples", None, "If set, the events number will be limited. e.g. If Samples=3, the plugin only generates three events and stops."),
+        ("Copies", Some("1"), "Number of messages to generate each time they are generated"),
+        ("Flush_on_startup", Some("false"), "If set to `true`, the first dummy event is generated at startup"),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Elasticsearch", "input/elasticsearch", [
+        ("buffer_max_size", Some("4M"), "Set the maximum size of buffer."),
+        ("buffer_chunk_size", Some("512K"), "Set the buffer chunk size."),
+        ("tag_key", Some("NULL"), "Specify a key name for extracting as a tag."),
+        ("meta_key", Some("@meta"), "Specify a key name for meta information."),
+        ("hostname", Some("localhost"), r#"Specify hostname or FQDN. This parameter can be used for "sniffing" (auto-discovery of) cluster node information."#),
+        ("version", Some("8.0.0"), "Specify Elasticsearch server version. This parameter is effective for checking a version of Elasticsearch/OpenSearch server version."),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Exec", "input/exec", [
+        ("Command", None, r#"The command to execute, passed to [popen(...)](https://man7.org/linux/man-pages/man3/popen.3.html) without any additional escaping or processing. May include pipelines, redirection, command-substitution, etc."#),
+        ("Parser", None, "Specify the name of a parser to interpret the entry as a structured message."),
+        ("Interval_Sec", None, "Polling interval (seconds)."),
+        ("Interval_NSec", None, "Polling interval (nanosecond)."),
+        ("Buf_Size", None, "Size of the buffer (check [unit sizes](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/unit-sizes) for allowed values)"),
+        ("Oneshot", Some("false"), "Only run once at startup. This allows collection of data precedent to fluent-bit's startup"),
+        ("Exit_After_Oneshot", Some("false"), "Exit as soon as the one-shot command exits. This allows the exec plugin to be used as a wrapper for another command, sending the target command's output to any fluent-bit sink(s) then exiting."),
+        ("Propagate_Exit_Code", Some("false"), "When exiting due to Exit_After_Oneshot, cause fluent-bit to exit with the exit code of the command exited by this plugin. Follows [shell conventions for exit code propagation](https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html)."),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Exec Wasi", "input/exec-wasi", [
+        ("WASI_Path", None, "The place of a WASM program file."),
+        ("Parser", None, "Specify the name of a parser to interpret the entry as a structured message."),
+        ("Accessible_Paths", None, "Specify the whilelist of paths to be able to access paths from WASM programs."),
+        ("Interval_Sec", None, "Polling interval (seconds)."),
+        ("Interval_NSec", None, "Polling interval (nanoseconds)."),
+        ("Buf_Size", None, "Size of the buffer (check [unit sizes](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/unit-sizes) for allowed values)"),
+        ("Oneshot", Some("false"), "Only run once at startup. This allows collection of data precedent to fluent-bit's startup"),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Fluent Bit Metrics", "input/fluentbit-metrics", [
+        ("scrape_interval", Some("2"), "The rate at which metrics are collected from the host operating system"),
+        ("scrape_on_start", Some("false"), "Scrape metrics upon start, useful to avoid waiting for `scrape_interval` for the first round of metrics."),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Forward", "input/forward", [
+        ("Listen", Some("0.0.0.0"), "Listener network interface"),
+        ("Port", Some("24224"), "TCP port to listen for incoming connections"),
+        ("Unix_Path", None, "Specify the path to unix socket to receive a Forward message. If set, `Listen` and `Port` are ignored."),
+        ("Unix_Perm", None, "Set the permission of the unix socket file. If `Unix_Path` is not set, this parameter is ignored."),
+        ("Buffer_Max_Size", Some("6144000"), "Specify the maximum buffer memory size used to receive a Forward message. The value must be according to the [Unit Size](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/unit-sizes) specification."),
+        ("Buffer_Chunk_Size", Some("1024000"), "By default the buffer to store the incoming Forward messages, do not allocate the maximum memory allowed, instead it allocate memory when is required. The rounds of allocations are set by `Buffer_Chunk_Size`. The value must be according to the Unit Size specification."),
+        ("Tag_Prefix", None, "Prefix incoming tag with the defined value."),
+        ("Tag", None, "Override the tag of the forwarded events with the defined value."),
+        ("Shared_Key", None, "Shared key for secure forward authentication."),
+        ("Self_Hostname", None, "Hostname for secure forward authentication."),
+        ("Security.Users", None, "Specify the username and password pairs for secure forward authentication."),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Head", "input/head", [
+        ("File", None, "Absolute path to the target file, e.g: /proc/uptime"),
+        ("Buf_Size", None, "Buffer size to read the file."),
+        ("Interval_Sec", None, "Polling interval (seconds)."),
+        ("Interval_NSec", None, "Polling interval (nanoseconds)."),
+        ("Add_Path", Some("false"), "If enabled, filepath is appended to each records."),
+        ("Key", Some("head"), "Rename a key."),
+        ("Lines", None, "Line number to read. If the number N is set, in_head reads first N lines like head(1) -n."),
+        ("Split_line", None, "If enabled, in_head generates key-value pair per line."),
+    ]);
 
+    //////////////////////////////////////////////////////////////////////////////////////////
     // Output
     add_snippet!(data, FlbSectionType::Output, "Kafka", "output/kafka", [
         ("format", Some("json"), "Specify data format, options available: json, msgpack, raw."),
