@@ -345,6 +345,15 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         ("Lines", None, "Line number to read. If the number N is set, in_head reads first N lines like head(1) -n."),
         ("Split_line", None, "If enabled, in_head generates key-value pair per line."),
     ]);
+    add_snippet!(data, FlbSectionType::Input, "Health", "input/health", [
+        ("Host", None, "Name of the target host or IP address to check."),
+        ("Port", None, "TCP port where to perform the connection check."),
+        ("Interval_Sec", Some("1"), "Interval in seconds between the service checks."),
+        ("Interval_NSec", Some("0"), "Specify a nanoseconds interval for service checks, it works in conjunction with the Interval_Sec configuration key."),
+        ("Alert", None, "If enabled, it will only generate messages if the target TCP service is down. By default this option is disabled."),
+        ("Add_Host", Some("false"), "If enabled, hostname is appended to each records."),
+        ("Add_Port", Some("false"), "If enabled, port number is appended to each records."),
+    ]);
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Output
