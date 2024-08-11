@@ -354,6 +354,15 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         ("Add_Host", Some("false"), "If enabled, hostname is appended to each records."),
         ("Add_Port", Some("false"), "If enabled, port number is appended to each records."),
     ]);
+    add_snippet!(data, FlbSectionType::Input, "HTTP", "input/http", [
+        ("listen", Some("0.0.0.0"), "The address to listen on"),
+        ("port", Some("9880"), "The port for Fluent Bit to listen on"),
+        ("tag_key", None, "Specify the key name to overwrite a tag. If set, the tag will be overwritten by a value of the key."),
+        ("buffer_max_size", Some("4M"), "Specify the maximum buffer size in KB to receive a JSON message."),
+        ("buffer_chunk_size", Some("512K"), "This sets the chunk size for incoming incoming JSON messages. These chunks are then stored/managed in the space available by `buffer_max_size`."),
+        ("successful_response_code", Some("201"), "It allows to set successful response code. `200`, `201` and `204` are supported."),
+        ("success_header", None, "Add an HTTP header key/value pair on success. Multiple headers can be set. Example: `X-Custom custom-answer`"),
+    ]);
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Output
