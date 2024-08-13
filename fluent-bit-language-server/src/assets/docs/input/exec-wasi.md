@@ -6,15 +6,15 @@ The **exec_wasi** input plugin, allows to execute WASM program that is WASI targ
 
 The plugin supports the following configuration parameters:
 
-| Key | Description |
-| :--- | :--- |
-| WASI\_Path | The place of a WASM program file. |
-| Parser | Specify the name of a parser to interpret the entry as a structured message. |
-| Accessible\_Paths | Specify the whilelist of paths to be able to access paths from WASM programs. |
-| Interval\_Sec | Polling interval \(seconds\). |
-| Interval\_NSec | Polling interval \(nanosecond\). |
-| Buf\_Size | Size of the buffer \(check [unit sizes](../../administration/configuring-fluent-bit/unit-sizes.md) for allowed values\) |
-| Oneshot | Only run once at startup. This allows collection of data precedent to fluent-bit's startup (bool, default: false) |
+| Key | Description                                                                                                                                     |
+| :--- |:------------------------------------------------------------------------------------------------------------------------------------------------|
+| WASI\_Path | The place of a WASM program file.                                                                                                               |
+| Parser | Specify the name of a parser to interpret the entry as a structured message.                                                                    |
+| Accessible\_Paths | Specify the whitelist of paths to be able to access paths from WASM programs.                                                                   |
+| Interval\_Sec | Polling interval \(seconds\).                                                                                                                   |
+| Interval\_NSec | Polling interval \(nanosecond\).                                                                                                                |
+| Buf\_Size | Size of the buffer \(check [unit sizes](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/unit-sizes) for allowed values\) |
+| Oneshot | Only run once at startup. This allows collection of data precedent to fluent-bit's startup (bool, default: false)                               |
 
 ## Configuration Examples
 

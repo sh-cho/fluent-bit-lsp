@@ -242,15 +242,6 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Input
-    add_snippet!(data, FlbSectionType::Input, "Kafka", "input/kafka", [
-        ("brokers", Some("kafka:9092"), "Single or multiple list of Kafka Brokers, e.g: 192.168.1.3:9092, 192.168.1.4:9092."),
-        ("topics", Some("my_topic"), "Single entry or list of topics separated by comma (,) that Fluent Bit will subscribe to."),
-        ("format", Some("none"), r#"Serialization format of the messages. If set to "json", the payload will be parsed as json."#),
-        ("client_id", None, "Client id passed to librdkafka."),
-        ("group_id", None, "Group id passed to librdkafka."),
-        ("poll_ms", Some("500"), "Kafka brokers polling interval in milliseconds."),
-        ("Buffer_Max_Size", Some("4M"), "Specify the maximum size of buffer per cycle to poll kafka messages from subscribed topics. To increase throughput, specify larger size."),
-    ]);
     add_snippet!(data, FlbSectionType::Input, "Collectd", "input/collectd", [
         ("Listen", Some("0.0.0.0"), "Set the address to listen to"),
         ("Port", Some("25826"), "Set the port to listen to"),
@@ -312,7 +303,7 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
     add_snippet!(data, FlbSectionType::Input, "Exec Wasi", "input/exec-wasi", [
         ("WASI_Path", None, "The place of a WASM program file."),
         ("Parser", None, "Specify the name of a parser to interpret the entry as a structured message."),
-        ("Accessible_Paths", None, "Specify the whilelist of paths to be able to access paths from WASM programs."),
+        ("Accessible_Paths", None, "Specify the whitelist of paths to be able to access paths from WASM programs."),
         ("Interval_Sec", None, "Polling interval (seconds)."),
         ("Interval_NSec", None, "Polling interval (nanoseconds)."),
         ("Buf_Size", None, "Size of the buffer (check [unit sizes](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/unit-sizes) for allowed values)"),
@@ -362,6 +353,18 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         ("buffer_chunk_size", Some("512K"), "This sets the chunk size for incoming incoming JSON messages. These chunks are then stored/managed in the space available by `buffer_max_size`."),
         ("successful_response_code", Some("201"), "It allows to set successful response code. `200`, `201` and `204` are supported."),
         ("success_header", None, "Add an HTTP header key/value pair on success. Multiple headers can be set. Example: `X-Custom custom-answer`"),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Kafka", "input/kafka", [
+        ("brokers", Some("kafka:9092"), "Single or multiple list of Kafka Brokers, e.g: 192.168.1.3:9092, 192.168.1.4:9092."),
+        ("topics", Some("my_topic"), "Single entry or list of topics separated by comma (,) that Fluent Bit will subscribe to."),
+        ("format", Some("none"), r#"Serialization format of the messages. If set to "json", the payload will be parsed as json."#),
+        ("client_id", None, "Client id passed to librdkafka."),
+        ("group_id", None, "Group id passed to librdkafka."),
+        ("poll_ms", Some("500"), "Kafka brokers polling interval in milliseconds."),
+        ("Buffer_Max_Size", Some("4M"), "Specify the maximum size of buffer per cycle to poll kafka messages from subscribed topics. To increase throughput, specify larger size."),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Kernel Logs", "input/kernel-logs", [
+        ("Prio_Level", Some("8"), "The log level to filter. The kernel log is dropped if its priority is more than prio_level. Allowed values are 0-8. Default is 8. 8 means all logs are saved."),
     ]);
 
     //////////////////////////////////////////////////////////////////////////////////////////

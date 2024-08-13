@@ -140,17 +140,17 @@ impl Backend {
         None
     }
 
-    // There are some false-positive ERROR nodes in AST, due to reason below
-    // (https://github.com/sh-cho/tree-sitter-fluentbit/pull/20)
-    // So only simple check is done for now...
-    //
-    // ```fluentbit
-    // [INPUT]  # ERROR COMMENT
-    //     #    ^^^^^ Comment is not allowed here
-    //     Name  tail
-    //     #...
-    // ```
-    //
+    /// There are some false-positive ERROR nodes in AST, due to reason below
+    /// (https://github.com/sh-cho/tree-sitter-fluentbit/pull/20)
+    /// So only simple check is done for now...
+    ///
+    /// ```fluentbit
+    /// [INPUT]  # ERROR COMMENT
+    ///     #    ^^^^^ Comment is not allowed here
+    ///     Name  tail
+    ///     #...
+    /// ```
+    ///
     pub async fn get_diagnostics(&self, url: &Url) -> Option<Vec<Diagnostic>> {
         let r = self.map.read().await;
         let TextDocument { tree, .. } = r.get(url)?;
