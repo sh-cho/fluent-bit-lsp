@@ -383,6 +383,13 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         ("tls.verify", Some("On"), "Enable or disable verification of TLS peer certificate."),
         ("tls.vhost", None, "Set optional TLS virtual host."),
     ]);
+    // XXX: Do I need to add plugins with no parameters like mem?
+    add_snippet!(data, FlbSectionType::Input, "Mem", "input/memory-metrics", []);
+    add_snippet!(data, FlbSectionType::Input, "Mqtt", "input/mqtt", [
+        ("Listen", Some("0.0.0.0"), "Listener network interface"),
+        ("Port", Some("1883"), "TCP port where listening for connections"),
+        ("Payload_Key", None, "Specify the key where the payload key/value will be preserved"),
+    ]);
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Output
