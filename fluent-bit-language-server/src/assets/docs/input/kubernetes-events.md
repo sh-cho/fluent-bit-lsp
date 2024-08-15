@@ -32,7 +32,7 @@ Kubernetes exports it events through the API server. This input plugin allows to
 
 ### Simple Configuration File
 
-In the following configuration file, the input plugin *kubernetes_events* collects events every 5 seconds (default for *interval_nsec*) and exposes them through the [standard output plugin](../outputs/standard-output.md) on the console.
+In the following configuration file, the input plugin *kubernetes_events* collects events every 5 seconds (default for *interval_nsec*) and exposes them through the [standard output plugin](https://docs.fluentbit.io/manual/pipeline/outputs/standard-output) on the console.
 
 ```text
 [SERVICE]
@@ -50,4 +50,4 @@ In the following configuration file, the input plugin *kubernetes_events* collec
 ```
 
 ### Event Timestamp
-Event timestamp will be created from the first existing field in the following order of precendence: lastTimestamp, firstTimestamp, metadata.creationTimestamp
+Event timestamp will be created from the first existing field in the following order of precedence: lastTimestamp, firstTimestamp, metadata.creationTimestamp

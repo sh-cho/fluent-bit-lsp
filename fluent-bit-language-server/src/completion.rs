@@ -366,6 +366,23 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
     add_snippet!(data, FlbSectionType::Input, "Kernel Logs", "input/kernel-logs", [
         ("Prio_Level", Some("8"), "The log level to filter. The kernel log is dropped if its priority is more than prio_level. Allowed values are 0-8. Default is 8. 8 means all logs are saved."),
     ]);
+    add_snippet!(data, FlbSectionType::Input, "Kubernetes Events", "input/kubernetes-events", [
+        ("db", None, "Set a database file to keep track of recorded Kubernetes events"),
+        ("db.sync", Some("normal"), "Set a database sync method. values: extra, full, normal and off"),
+        ("interval_sec", Some("0"), "Set the polling interval for each channel."),
+        ("interval_nsec", Some("500000000"), "Set the polling interval for each channel (sub seconds: nanoseconds)"),
+        ("kube_url", Some("https://kubernetes.default.svc"), "API Server end-point"),
+        ("kube_ca_file", Some("/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"), "Kubernetes TLS CA file"),
+        ("kube_ca_path", None, "Kubernetes TLS ca path"),
+        ("kube_token_file", Some("/var/run/secrets/kubernetes.io/serviceaccount/token"), "Kubernetes authorization token file."),
+        ("kube_token_ttl", Some("10m"), "kubernetes token ttl, until it is reread from the token file."),
+        ("kube_request_limit", Some("0"), "kubernetes limit parameter for events query, no limit applied when set to 0."),
+        ("kube_retention_time", Some("1h"), "Kubernetes retention time for events."),
+        ("kube_namespace", None, "Kubernetes namespace to query events from. Gets events from all namespaces by default"),
+        ("tls.debug", Some("0"), "Debug level between 0 (nothing) and 4 (every detail)."),
+        ("tls.verify", Some("On"), "Enable or disable verification of TLS peer certificate."),
+        ("tls.vhost", None, "Set optional TLS virtual host."),
+    ]);
 
     //////////////////////////////////////////////////////////////////////////////////////////
     // Output
