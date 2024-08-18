@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "fluent-bit-language-server",
+    "fluent-bit-language-server", "ide-completion",
     "xtask",
 ]
 resolver = "2"

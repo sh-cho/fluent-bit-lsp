@@ -1,5 +1,6 @@
 use std::{collections::HashMap, fmt::Display, str::FromStr, string::ToString};
 
+use convert_case::{Case, Casing};
 use once_cell::sync::Lazy;
 use tower_lsp::lsp_types::{
     CompletionItem, CompletionItemKind, CompletionItemLabelDetails, Documentation,
@@ -97,9 +98,18 @@ impl FlbConfigParameter {
 
 #[derive(Clone)]
 pub(crate) struct FlbCompletionSnippet {
+    /// Completion Label which will be printed in the completion list
+    ///
+    /// e.g. "Network I/O Metrics"
     label: String,
+
+    /// Plugin name which will be used in the configuration file
+    ///
+    /// e.g. `netif`
+    plugin_name: String,
     documentation_markdown: String,
     config_params: Vec<FlbConfigParameter>,
+    // XXX: maybe no need
     // detail: Option<String>,
     // label_details: Option<String>,
     // label_details_desc: Option<String>,
@@ -108,11 +118,13 @@ pub(crate) struct FlbCompletionSnippet {
 impl FlbCompletionSnippet {
     pub fn new(
         label: &str,
+        plugin_name: Option<&str>,
         documentation_markdown: &str,
         config_params: Vec<FlbConfigParameter>,
     ) -> Self {
         FlbCompletionSnippet {
             label: label.to_string(),
+            plugin_name: plugin_name.map_or_else(|| label.to_case(Case::Snake), |s| s.to_string()),
             documentation_markdown: documentation_markdown.to_string(),
             config_params,
         }
@@ -121,7 +133,7 @@ impl FlbCompletionSnippet {
     pub fn props_to_insert_text(&self) -> String {
         const KEY_WIDTH: usize = 15; // TODO: dynamic?
 
-        let mut ret = format!("{:KEY_WIDTH$} {}\n", "Name", self.label.to_lowercase());
+        let mut ret = format!("{:KEY_WIDTH$} {}\n", "Name", self.plugin_name);
 
         for (index, param) in self.config_params.iter().enumerate() {
             let tab_stop = index + 1;
@@ -230,7 +242,29 @@ macro_rules! add_snippet {
                 FlbConfigParameter::new($key, $default, $desc),
             )*
         ];
-        let snippet = FlbCompletionSnippet::new($label, read_flb_docs!($doc_path), config_params);
+        let snippet = FlbCompletionSnippet::new($label, None, read_flb_docs!($doc_path), config_params);
+        $flb_data.add_snippet($section, snippet);
+    };
+
+    (
+        $flb_data:expr,
+        $section:expr,
+        $label:expr,
+        $plugin_name:expr,
+        $doc_path:expr,
+        [
+            $(
+                ($key:expr, $default:expr, $desc:expr)
+            ),*
+            $(,)?
+        ]
+    ) => {
+        let config_params = vec![
+            $(
+                FlbConfigParameter::new($key, $default, $desc),
+            )*
+        ];
+        let snippet = FlbCompletionSnippet::new($label, Some($plugin_name), read_flb_docs!($doc_path), config_params);
         $flb_data.add_snippet($section, snippet);
     };
 }
@@ -257,12 +291,12 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         ("Interval_NSec", Some("0"), "Polling interval in nanoseconds"),
         ("Dev_Name", None, "Device name to limit the target. (e.g. sda). If not set, in_disk gathers information from all of disks and partitions."),
     ]);
-    add_snippet!(data, FlbSectionType::Input, "Docker Metrics", "input/docker-metrics", [
+    add_snippet!(data, FlbSectionType::Input, "Docker Metrics", "docker", "input/docker-metrics", [
         ("Interval_Sec", Some("1"), "Polling interval in seconds"),
         ("Include", None, "A space-separated list of containers to include"),
         ("Exclude", None, "A space-separated list of containers to exclude"),
     ]);
-    add_snippet!(data, FlbSectionType::Input, "Docker Events", "input/docker-events", [
+    add_snippet!(data, FlbSectionType::Input, "Docker Events", "docker_events", "input/docker-events", [
         ("Unix_Path", Some("/var/run/docker.sock"), "The docker socket unix path"),
         ("Buffer_Size", Some("8192"), "The size of the buffer used to read docker events (in bytes)"),
         ("Parser", None, "Specify the name of a parser to interpret the entry as a structured message."),
@@ -300,7 +334,7 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         ("Exit_After_Oneshot", Some("false"), "Exit as soon as the one-shot command exits. This allows the exec plugin to be used as a wrapper for another command, sending the target command's output to any fluent-bit sink(s) then exiting."),
         ("Propagate_Exit_Code", Some("false"), "When exiting due to Exit_After_Oneshot, cause fluent-bit to exit with the exit code of the command exited by this plugin. Follows [shell conventions for exit code propagation](https://www.gnu.org/software/bash/manual/html_node/Exit-Status.html)."),
     ]);
-    add_snippet!(data, FlbSectionType::Input, "Exec Wasi", "input/exec-wasi", [
+    add_snippet!(data, FlbSectionType::Input, "Exec Wasi", "wasi", "input/exec-wasi", [
         ("WASI_Path", None, "The place of a WASM program file."),
         ("Parser", None, "Specify the name of a parser to interpret the entry as a structured message."),
         ("Accessible_Paths", None, "Specify the whitelist of paths to be able to access paths from WASM programs."),
@@ -309,7 +343,7 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         ("Buf_Size", None, "Size of the buffer (check [unit sizes](https://docs.fluentbit.io/manual/administration/configuring-fluent-bit/unit-sizes) for allowed values)"),
         ("Oneshot", Some("false"), "Only run once at startup. This allows collection of data precedent to fluent-bit's startup"),
     ]);
-    add_snippet!(data, FlbSectionType::Input, "Fluent Bit Metrics", "input/fluentbit-metrics", [
+    add_snippet!(data, FlbSectionType::Input, "Fluent Bit Metrics", "fluentbit_metrics", "input/fluentbit-metrics", [
         ("scrape_interval", Some("2"), "The rate at which metrics are collected from the host operating system"),
         ("scrape_on_start", Some("false"), "Scrape metrics upon start, useful to avoid waiting for `scrape_interval` for the first round of metrics."),
     ]);
@@ -363,7 +397,7 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         ("poll_ms", Some("500"), "Kafka brokers polling interval in milliseconds."),
         ("Buffer_Max_Size", Some("4M"), "Specify the maximum size of buffer per cycle to poll kafka messages from subscribed topics. To increase throughput, specify larger size."),
     ]);
-    add_snippet!(data, FlbSectionType::Input, "Kernel Logs", "input/kernel-logs", [
+    add_snippet!(data, FlbSectionType::Input, "Kernel Logs", "kmsg", "input/kernel-logs", [
         ("Prio_Level", Some("8"), "The log level to filter. The kernel log is dropped if its priority is more than prio_level. Allowed values are 0-8. Default is 8. 8 means all logs are saved."),
     ]);
     add_snippet!(data, FlbSectionType::Input, "Kubernetes Events", "input/kubernetes-events", [
@@ -389,6 +423,19 @@ static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
         ("Listen", Some("0.0.0.0"), "Listener network interface"),
         ("Port", Some("1883"), "TCP port where listening for connections"),
         ("Payload_Key", None, "Specify the key where the payload key/value will be preserved"),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "Network I/O Metrics", "netif", "input/network-io-metrics", [
+        ("Interface", None, "Specify the network interface to monitor. e.g. eth0"),
+        ("Interval_Sec", Some("1"), "Polling interval (seconds)."),
+        ("Interval_NSec", Some("0"), "Polling interval (nanoseconds)."),
+        ("Verbose", Some("false"), "If true, gather metrics precisely."),
+        ("Test_At_Init", Some("false"), "If true, testing if the network interface is valid at initialization."),
+    ]);
+    add_snippet!(data, FlbSectionType::Input, "NGINX Exporter Metrics", "nginx_metrics", "input/nginx", [
+        ("Host", Some("localhost"), "Name of the target host or IP address to check."),
+        ("Port", Some("80"), "Port of the target nginx service to connect to."),
+        ("Status_URL", Some("/status"), "The URL of the Stub Status Handler."),
+        ("Nginx_Plus", Some("true"), "Turn on NGINX plus mode."),
     ]);
 
     //////////////////////////////////////////////////////////////////////////////////////////
