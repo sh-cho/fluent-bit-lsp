@@ -1,0 +1,109 @@
+section_type,plugin_name,label_in_docs,doc_path
+custom,calyptia,Calyptia,calyptia
+input,collectd,Collectd,collectd
+input,cpu,CPU Log Based Metrics,cpu-metrics
+input,disk,Disk I/O Log Based Metrics,disk-io-metrics
+input,netif,Network I/O Log Based Metrics,network-io-metrics
+input,docker,Docker Log Based Metrics,docker-metrics
+input,docker_events,Docker Events,docker-events
+input,dummy,Dummy,dummy
+input,elasticsearch,Elasticsearch,elasticsearch
+input,exec,Exec,exec
+input,exec_wasi,Exec Wasi,exec-wasi
+input,fluentbit_metrics,Fluent Bit Metrics,fluentbit-metrics
+input,forward,Forward,forward
+input,head,Head,head
+input,http,HTTP,http
+input,health,Health,health
+input,kafka,Kafka,kafka
+input,kmsg,Kernel Logs,kernel-logs
+input,kubernetes_events,Kubernetes Events,kubernetes-events
+input,mem,Memory Metrics,memory-metrics
+input,mqtt,MQTT,mqtt
+input,netif,Network I/O Log Based Metrics,network-io-metrics
+input,nginx_metrics,NGINX Exporter Metrics,nginx
+input,node_exporter_metrics,Node Exporter Metrics,node-exporter-metrics
+input,podman_metrics,Podman Metrics,podman-metrics
+input,proc,Process Log Based Metrics,process
+input,process_exporter_metrics,Process Exporter Metrics,process-exporter-metrics
+input,prometheus_scrape,Prometheus Scrape Metrics,prometheus-scrape-metrics
+input,prometheus_remote_write,Prometheus Remote Write,prometheus-remote-write
+input,random,Random,random
+input,serial,Serial Interface,serial-interface
+input,splunk,Splunk,splunk
+input,stdin,Standard Input,standard-input
+input,statsd,StatsD,statsd
+input,syslog,Syslog,syslog
+input,systemd,Systemd,systemd
+input,tail,Tail,tail
+input,tcp,TCP,tcp
+input,thermal,Thermal,thermal
+input,udp,UDP,udp
+input,opentelemetry,OpenTelemetry,opentelemetry
+input,winlog,Windows Event Log,windows-event-log
+input,winevtlog,Windows Event Log (winevtlog),windows-event-log-winevtlog
+input,windows_exporter_metrics,Windows Exporter Metrics,windows-exporter-metrics
+filter,aws,AWS Metadata,aws-metadata
+filter,checklist,CheckList,checklist
+filter,ecs,ECS Metadata,ecs-metadata
+filter,expect,Expect,expect
+filter,geoip2,GeoIP2 Filter,geoip2-filter
+filter,grep,Grep,grep
+filter,kubernetes,Kubernetes,kubernetes
+filter,log_to_metrics,Log to Metrics,log_to_metrics
+filter,lua,Lua,lua
+filter,parser,Parser,parser
+filter,record_modifier,Record Modifier,record-modifier
+filter,modify,Modify,modify
+filter,multiline,Multiline,multiline-stacktrace
+filter,nest,Nest,nest
+filter,nightfall,Nightfall,nightfall
+filter,rewrite_tag,Rewrite Tag,rewrite-tag
+filter,stdout,Standard Output,standard-output
+filter,sysinfo,Sysinfo,sysinfo
+filter,throttle,Throttle,throttle
+filter,type_converter,Type Converter,type-converter
+filter,tensorflow,Tensorflow,tensorflow
+filter,wasm,Wasm,wasm
+output,cloudwatch_logs,Amazon CloudWatch,cloudwatch
+output,kinesis_firehose,Amazon Kinesis Data Firehose,firehose
+output,kinesis_streams,Amazon Kinesis Data Streams,kinesis
+output,s3,Amazon S3,s3
+output,azure_blob,Azure Blob,azure_blob
+output,azure_kusto,Azure Data Explorer,azure_kusto
+output,azure,Azure Log Analytics,azure
+output,azure_logs_ingestion,Azure Logs Ingestion API,azure_logs_ingestion
+output,counter,Counter,counter
+output,datadog,Datadog,datadog
+output,es,Elasticsearch,elasticsearch
+output,file,File,file
+output,flowcounter,FlowCounter,flowcounter
+output,forward,Forward,forward
+output,gelf,GELF,gelf
+output,chronicle,Google Chronicle,chronicle
+output,bigquery,Google Cloud BigQuery,bigquery
+output,http,HTTP,http
+output,influxdb,InfluxDB,influxdb
+output,kafka,Kafka,kafka
+output,kafka-rest,Kafka REST Proxy,kafka-rest-proxy
+output,logdna,LogDNA,logdna
+output,loki,Loki,loki
+output,nats,NATS,nats
+output,nrlogs,New Relic,new-relic
+output,null,NULL,null
+output,oracle_log_analytics,Oracle Log Analytics,oci-logging-analytics
+output,opensearch,OpenSearch,opensearch
+output,opentelemetry,OpenTelemetry,opentelemetry
+output,pgsql,PostgreSQL,postgresql
+output,prometheus_exporter,Prometheus Exporter,prometheus-exporter
+output,prometheus_remote_write,Prometheus Remote Write,prometheus-remote-write
+output,skywalking,SkyWalking,skywalking
+output,slack,Slack,slack
+output,splunk,Splunk,splunk
+output,stackdriver,Stackdriver,stackdriver
+output,stdout,Standard Output,standard-output
+output,syslog,Syslog,syslog
+output,tcp,TCP & TLS,tcp-and-tls
+output,td,Treasure Data,treasure-data
+output,vivo_exporter,Vivo Exporter,vivo-exporter
+output,websocket,WebSocket,websocket

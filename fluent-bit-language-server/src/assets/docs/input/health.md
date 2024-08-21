@@ -12,7 +12,7 @@ The plugin supports the following configuration parameters:
 | Port | TCP port where to perform the connection check. |
 | Interval\_Sec | Interval in seconds between the service checks. Default value is _1_. |
 | Internal\_Nsec | Specify a nanoseconds interval for service checks, it works in conjunction with the Interval\_Sec configuration key. Default value is _0_. |
-| Alert | If enabled, it will only generate messages if the target TCP service is down. By default this option is disabled. |
+| Alert | If enabled, it will only Generate messages if the target TCP service is down. By default this option is disabled. |
 | Add\_Host | If enabled, hostname is appended to each records. Default value is _false_. |
 | Add\_Port | If enabled, port number is appended to each records. Default value is _false_. |
 
@@ -22,7 +22,7 @@ In order to start performing the checks, you can run the plugin from the command
 
 ### Command Line
 
-From the command line you can let Fluent Bit generate the checks with the following options:
+From the command line you can let Fluent Bit Generate the checks with the following options:
 
 ```bash
 $ fluent-bit -i health -p host=127.0.0.1 -p port=80 -o stdout

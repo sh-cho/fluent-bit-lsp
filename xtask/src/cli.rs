@@ -14,4 +14,10 @@ pub enum Commands {
         #[arg(long)]
         client_patch_version: Option<String>,
     },
+
+    #[command(about = "Generate the schema")]
+    Generate {
+        #[arg(long)]
+        flb_version: Option<String>,
+    },
 }

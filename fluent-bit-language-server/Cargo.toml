@@ -13,6 +13,7 @@ name = "fluent-bit-language-server"
 
 [dependencies]
 anyhow.workspace = true
+convert_case.workspace = true
 tree-sitter = "0.22.6"
 tree-sitter-fluentbit = "0.1.0-alpha.4"
 tower-lsp = "0.20.0"
@@ -20,8 +21,8 @@ tokio = { version = "1.38.0", features = ["full"] }
 once_cell = "1.19.0"
 thiserror = "1.0.63"
 ropey = "1.6.1"
-convert_case = "0.6.0"
 
+flb-schema.workspace = true
 
 [build-dependencies]
 cc = "*"

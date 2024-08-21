@@ -58,7 +58,7 @@ server {
 
 ### Command Line
 
-From the command line you can let Fluent Bit generate the checks with the following options:
+From the command line you can let Fluent Bit Generate the checks with the following options:
 
 ```bash
 $ fluent-bit -i nginx_metrics -p host=127.0.0.1 -p port=80 -p status_url=/status -p nginx_plus=off -o stdout

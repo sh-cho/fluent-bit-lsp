@@ -237,7 +237,7 @@ web_modules/
 .next
 out
 
-# Nuxt.js build / generate output
+# Nuxt.js build / Generate output
 .nuxt
 dist
 
@@ -284,7 +284,7 @@ dist
 
 # Optional stylelint cache
 
-# SvelteKit build / generate output
+# SvelteKit build / Generate output
 .svelte-kit
 
 ### VisualStudioCode ###

@@ -1,5 +1,6 @@
 use std::{collections::HashMap, str::FromStr};
 
+use flb_schema::section::FlbSectionType;
 use ropey::Rope;
 use tokio::sync::RwLock;
 use tower_lsp::{
@@ -19,7 +20,7 @@ use tower_lsp::{
 use tree_sitter::{Node, Point};
 
 use crate::{
-    completion::{get_completion, get_hover_info, FlbSectionType},
+    completion::{get_completion, get_hover_info},
     document::{PositionEncodingKind, TextDocument},
 };
 

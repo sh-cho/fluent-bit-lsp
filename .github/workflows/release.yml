@@ -229,7 +229,7 @@ jobs:
 
       #      - run: pnpm dlx vsce publish --pat ${{ secrets.VSCE_TOKEN }} --packagePath ../../dist/vscode-fluent-bit-*.vsix
       #        working-directory: clients/vscode
-      - run: pnpm dlx vsce ls --packagePath ../../dist/vscode-fluent-bit-*.vsix
-        working-directory: clients/vscode
+      #      - run: pnpm dlx vsce ls --packagePath ../../dist/vscode-fluent-bit-*.vsix
+      #        working-directory: clients/vscode
 
       # TODO: ovsx
