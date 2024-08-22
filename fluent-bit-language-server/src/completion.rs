@@ -1,8 +1,7 @@
-use std::{collections::HashMap, fmt::Display, str::FromStr, string::ToString};
+use std::{collections::HashMap, string::ToString};
 
 use convert_case::{Case, Casing};
 use flb_schema::section::FlbSectionType;
-use once_cell::sync::Lazy;
 use tower_lsp::lsp_types::{
     CompletionItem, CompletionItemKind, CompletionItemLabelDetails, Documentation,
     InsertTextFormat, InsertTextMode, MarkupContent, MarkupKind,

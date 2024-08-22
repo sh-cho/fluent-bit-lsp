@@ -1,6 +1,6 @@
 //! Generate schema.generated.rs
 
-use std::{collections::HashMap, fs::File, io::Read};
+use std::{collections::HashMap, io::Read};
 
 use convert_case::{Case, Casing};
 use csv::ReaderBuilder;
@@ -37,15 +37,6 @@ struct PluginInfo {
     /// ex. "Input plugin for Splunk HEC payloads" -> "Splunk"
     label_in_docs: String,
     doc_path: String,
-}
-
-impl PluginInfo {
-    fn new(label_in_docs: String, doc_path: String) -> Self {
-        Self {
-            label_in_docs,
-            doc_path,
-        }
-    }
 }
 
 #[derive(Deserialize)]
@@ -151,8 +142,7 @@ pub static FLB_DATA: Lazy<FlbData> = Lazy::new(|| {
     );
 
     // TODO: add docs for undocumented ones?
-    let ignored = vec![
-        // input
+    let ignored = [
         "event_type",
         "lib",
         // filter
