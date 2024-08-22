@@ -1,32 +1,38 @@
-# vscode-fluent-bit [![Visual Studio Marketplace](https://img.shields.io/badge/-Marketplace-007ACC?logo=visual%20studio%20code&logoColor=ffffff)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit)
+# fluent-bit-lsp
 
-[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/sh-cho.vscode-fluent-bit)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit)
-[![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/sh-cho.vscode-fluent-bit)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit)
-![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/sh-cho.vscode-fluent-bit)
-[![Visual Studio Marketplace Rating](https://img.shields.io/visual-studio-marketplace/r/sh-cho.vscode-fluent-bit)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit&ssr=false#review-details)
+[![Server CI](https://github.com/sh-cho/fluent-bit-lsp/actions/workflows/server-ci.yaml/badge.svg?event=push)](https://github.com/sh-cho/fluent-bit-lsp/actions/workflows/server-ci.yaml)
 
-vscode language extension for [fluent-bit](https://fluentbit.io/)
+[LSP(Language Server Protocol)](https://microsoft.github.io/language-server-protocol/) implementation
+for [fluent-bit](https://fluentbit.io/) config
 
-<img width="620" alt="image" src="https://user-images.githubusercontent.com/11611397/236528991-9f3b9ce0-8312-49eb-bacd-7fd6f1104a34.png">
-
+> [!NOTE]
+> This project is still in development and not fully-featured yet.
 
 ## Features
 
-- syntax highlighting
+- Auto-completion for plugins
+- Show documentation on hover
+- Diagnostics
 
-### Todos
+## [fluent-bit-language-server](./fluent-bit-language-server)
 
-- [ ] Implement [language server](https://langserver.org/) for fluent-bit conf
-  - More detailed tokenize
-  - Static analysis
-  - etc..
-- [ ] Config file snippets
+Language server implementation made
+with [tower-lsp](https://github.com/ebkalderon/tower-lsp), [tree-sitter-fluentbit](https://github.com/sh-cho/tree-sitter-fluentbit)
 
+## Clients
 
-## Changelog
-
-See [CHANGELOG.md](./CHANGELOG.md)
+- [Visual Studio Code](./clients/vscode)
+- nvim (TBD)
+- helix (TBD)
 
 ## How to contribute?
 
-See [CONTRIBUTING.md](./CONTRIBUTING.md)
+Currently, this project is in the early stage of development and a lot of parts can be changed. So I don't think it's a good time to contribute to this project yet.
+
+It doesn't mean that I don't accept contributions now, but I think it's better to wait until the project is more stable.
+
+When it is ready, I will update this section. 🙏
+
+## License
+
+Licensed under either of [Apache License Version 2.0](LICENSE-APACHE) or [MIT License](LICENSE-MIT) at your option.

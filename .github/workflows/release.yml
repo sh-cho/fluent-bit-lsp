@@ -1,0 +1,258 @@
+# https://github.com/rust-lang/rust-analyzer/blob/aa00ddcf654a35ba0eafe17247cf189958d33182/.github/workflows/release.yaml
+
+name: Release
+on:
+  workflow_dispatch:
+
+  # temp
+#  push:
+#    branches:
+#      - lsp
+
+env:
+  CARGO_INCREMENTAL: 0
+  CARGO_NET_RETRY: 10
+  RUSTUP_MAX_RETRIES: 10
+  CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
+  CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-gcc
+  # should match with version in dist.rs
+  VERSION_STABLE: 0.2
+
+# for git tagging
+permissions:
+  contents: write
+
+jobs:
+  dist:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            code-target: win32-x64
+          - os: windows-latest
+            target: i686-pc-windows-msvc
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+            code-target: win32-arm64
+          - os: ubuntu-20.04
+            target: x86_64-unknown-linux-gnu
+            code-target: linux-x64
+            container: rockylinux:8
+          - os: ubuntu-20.04
+            target: aarch64-unknown-linux-gnu
+            code-target: linux-arm64
+          - os: ubuntu-20.04
+            target: arm-unknown-linux-gnueabihf
+            code-target: linux-armhf
+          - os: macos-12
+            target: x86_64-apple-darwin
+            code-target: darwin-x64
+          - os: macos-12
+            target: aarch64-apple-darwin
+            code-target: darwin-arm64
+
+    runs-on: ${{ matrix.os }}
+    name: dist (${{ matrix.target }})
+    container: ${{ matrix.container }}
+
+    env:
+      FLB_LS_TARGET: ${{ matrix.target }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install toolchain dependencies
+        if: matrix.container == 'rockylinux:8'
+        shell: bash
+        run: |
+          dnf install -y clang
+          curl --proto '=https' --tlsv1.2 --retry 10 --retry-connrefused -fsSL "https://sh.rustup.rs" | sh -s -- --profile minimal --default-toolchain none -y
+          echo "${CARGO_HOME:-$HOME/.cargo}/bin" >> $GITHUB_PATH
+
+      - name: Install Rust toolchain
+        run: |
+          rustup update --no-self-update stable
+          rustup target add ${{ matrix.target }}
+          rustup component add rust-src
+
+      - name: Update apt repositories
+        if: matrix.target == 'aarch64-unknown-linux-gnu' || matrix.target == 'arm-unknown-linux-gnueabihf'
+        run: |
+          sudo apt-get update
+          sudo apt-get install clang gcc-multilib
+
+      - name: Install AArch64 target toolchain
+        if: matrix.target == 'aarch64-unknown-linux-gnu'
+        run: sudo apt-get install gcc-aarch64-linux-gnu
+
+      - name: Install ARM target toolchain
+        if: matrix.target == 'arm-unknown-linux-gnueabihf'
+        run: sudo apt-get install gcc-arm-linux-gnueabihf
+
+      - name: Dist
+        run: cargo xtask dist --client-patch-version ${{ github.run_number }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: clients/vscode/package.json
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: clients/vscode/pnpm-lock.yaml
+
+      - run: pnpm install
+        working-directory: clients/vscode
+
+      - name: Package Extension
+        if: matrix.code-target
+        run: pnpm dlx vsce package -o "../../dist/vscode-fluent-bit-${{ matrix.code-target }}.vsix" --target ${{ matrix.code-target }} --no-dependencies
+        working-directory: clients/vscode
+
+      # XXX: I don't think no-server version is needed for now.
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-${{ matrix.target }}
+          path: ./dist
+
+  dist-x86_64-unknown-linux-musl:
+    name: dist (x86_64-unknown-linux-musl)
+    runs-on: ubuntu-latest
+    env:
+      FLB_LS_TARGET: x86_64-unknown-linux-musl
+      # For some reason `-crt-static` is not working for clang without lld
+      RUSTFLAGS: "-C link-arg=-fuse-ld=lld -C target-feature=-crt-static"
+    container:
+      image: rust:alpine
+      volumes:
+        - /usr/local/cargo/registry:/usr/local/cargo/registry
+
+    steps:
+      - name: Install dependencies
+        run: apk add --no-cache git clang lld musl-dev nodejs npm tar
+
+      - uses: actions/checkout@v4
+
+      - name: Dist
+        run: cargo xtask dist --client-patch-version ${{ github.run_number }}
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: clients/vscode/package.json
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: clients/vscode/pnpm-lock.yaml
+
+      - run: pnpm install
+        working-directory: clients/vscode
+
+      - name: Package Extension
+        run: pnpm dlx vsce package -o "../../dist/vscode-fluent-bit-alpine-x64.vsix" --target alpine-x64 --no-dependencies
+        working-directory: clients/vscode
+
+      - run: rm -rf clients/vscode/server
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist-x86_64-unknown-linux-musl
+          path: ./dist
+
+  publish:
+    name: publish
+    runs-on: ubuntu-latest
+    needs: [ "dist", "dist-x86_64-unknown-linux-musl" ]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: echo "TAG=${{ env.VERSION_STABLE }}.${{ github.run_number }}" >> $GITHUB_ENV
+      - run: 'echo "TAG: $TAG"'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-aarch64-apple-darwin
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-x86_64-apple-darwin
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-x86_64-unknown-linux-gnu
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-x86_64-unknown-linux-musl
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-aarch64-unknown-linux-gnu
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-arm-unknown-linux-gnueabihf
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-x86_64-pc-windows-msvc
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-i686-pc-windows-msvc
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist-aarch64-pc-windows-msvc
+          path: dist
+
+      - run: ls -al ./dist
+
+      - name: git tag and push
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git tag -a $TAG -m "Release $TAG"
+          git push origin $TAG
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ env.TAG }}
+          tag_name: ${{ env.TAG }}
+          files: |
+            dist/*
+
+      - uses: pnpm/action-setup@v4
+        with:
+          package_json_file: clients/vscode/package.json
+          run_install: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+          cache-dependency-path: clients/vscode/pnpm-lock.yaml
+
+      - run: pnpm install
+        working-directory: clients/vscode
+
+      - name: Publish Extension (Code Marketplace)
+        run: pnpm dlx vsce publish --pat ${{ secrets.VSCE_TOKEN }} --packagePath ../../dist/vscode-fluent-bit-*.vsix
+        working-directory: clients/vscode
+
+      - name: Publish Extension (OpenVSX)
+        run: pnpm dlx ovsx publish --pat ${{ secrets.OVSX_TOKEN }} --packagePath ../../dist/vscode-fluent-bit-*.vsix
+        working-directory: clients/vscode
+        timeout-minutes: 2

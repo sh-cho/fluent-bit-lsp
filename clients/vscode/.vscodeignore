@@ -1,0 +1,10 @@
+**
+!images
+!language-configuration.json
+!LICENSE
+!package.json
+!pnpm-lock.yaml
+!README.md
+!server
+!syntaxes
+!out/main.js

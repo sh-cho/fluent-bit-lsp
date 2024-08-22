@@ -1,17 +1,17 @@
-## Contributing to `vscode-fluent-bit`
+## Contributing to `fluent-bit-lsp`
 
-
+🚧 Work-in-progress
 
 ### Install
 
-### Test
+(e.g. using [mise](https://mise.jdx.dev/))
 
-### Release
-
-Tag version with semver (ex. `v0.1.0`)
-
-```shell
-pnpm dlx auto-changelog --output CHANGELOG.md --template keepachangelog
+```sh
+$ mise use node@20
 ```
 
-Generate changelog
+### Test
+TBD
+
+### Release
+see [Release workflow](./.github/workflows/release.yml)

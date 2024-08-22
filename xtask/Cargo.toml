@@ -1,0 +1,22 @@
+[package]
+name = "xtask"
+version = "0.0.0"
+publish = false
+
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+anyhow.workspace = true
+xshell.workspace = true
+flb-schema.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+convert_case.workspace = true
+clap = { version = "4.5.13", features = ["derive"] }
+flate2 = "1.0.31"
+time = "0.3.36"
+zip = "2.1.6"
+once_cell = "1.19.0"
+csv = "1.3.0"
