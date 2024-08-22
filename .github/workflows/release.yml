@@ -3,12 +3,11 @@
 name: Release
 on:
   workflow_dispatch:
-  # when tag is pushed
 
   # temp
-  push:
-    branches:
-      - lsp
+#  push:
+#    branches:
+#      - lsp
 
 env:
   CARGO_INCREMENTAL: 0
@@ -16,6 +15,12 @@ env:
   RUSTUP_MAX_RETRIES: 10
   CARGO_TARGET_AARCH64_UNKNOWN_LINUX_GNU_LINKER: aarch64-linux-gnu-gcc
   CARGO_TARGET_ARM_UNKNOWN_LINUX_GNUEABIHF_LINKER: arm-linux-gnueabihf-gcc
+  # should match with version in dist.rs
+  VERSION_STABLE: 0.2
+
+# for git tagging
+permissions:
+  contents: write
 
 jobs:
   dist:
@@ -172,6 +177,9 @@ jobs:
         with:
           node-version: 20
 
+      - run: echo "TAG=${{ env.VERSION_STABLE }}.${{ github.run_number }}" >> $GITHUB_ENV
+      - run: 'echo "TAG: $TAG"'
+
       - uses: actions/download-artifact@v4
         with:
           name: dist-aarch64-apple-darwin
@@ -211,7 +219,20 @@ jobs:
 
       - run: ls -al ./dist
 
-      # TODO: publish release
+      - name: git tag and push
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git tag -a $TAG -m "Release $TAG"
+          git push origin $TAG
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ env.TAG }}
+          tag_name: ${{ env.TAG }}
+          files: |
+            dist/*
 
       - uses: pnpm/action-setup@v4
         with:
@@ -227,9 +248,11 @@ jobs:
       - run: pnpm install
         working-directory: clients/vscode
 
-      #      - run: pnpm dlx vsce publish --pat ${{ secrets.VSCE_TOKEN }} --packagePath ../../dist/vscode-fluent-bit-*.vsix
-      #        working-directory: clients/vscode
-      #      - run: pnpm dlx vsce ls --packagePath ../../dist/vscode-fluent-bit-*.vsix
-      #        working-directory: clients/vscode
+      - name: Publish Extension (Code Marketplace)
+        run: pnpm dlx vsce publish --pat ${{ secrets.VSCE_TOKEN }} --packagePath ../../dist/vscode-fluent-bit-*.vsix
+        working-directory: clients/vscode
 
-      # TODO: ovsx
+      - name: Publish Extension (OpenVSX)
+        run: pnpm dlx ovsx publish --pat ${{ secrets.OVSX_TOKEN }} --packagePath ../../dist/vscode-fluent-bit-*.vsix
+        working-directory: clients/vscode
+        timeout-minutes: 2
