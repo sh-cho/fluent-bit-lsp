@@ -1,6 +1,6 @@
 //! Generate schema.generated.rs
 
-use std::{collections::HashMap, io::Read};
+use std::collections::HashMap;
 
 use convert_case::{Case, Casing};
 use csv::ReaderBuilder;
