@@ -10,7 +10,7 @@
     "vscode": "^1.78.0"
   },
   "license": "MIT OR Apache-2.0",
-  "homepage": "https://github.com/sh-cho/fluent-bit-lsp/clients/vscode",
+  "homepage": "https://github.com/sh-cho/fluent-bit-lsp/tree/main/clients/vscode",
   "repository": {
     "type": "git",
     "url": "https://github.com/sh-cho/fluent-bit-lsp.git"
