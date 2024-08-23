@@ -1,9 +1,9 @@
-# vscode-fluent-bit [![Visual Studio Marketplace](https://img.shields.io/badge/-Marketplace-007ACC?logo=visual%20studio%20code&logoColor=ffffff)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit)
+# vscode-fluent-bit
 
-[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/sh-cho.vscode-fluent-bit)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit)
-[![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/sh-cho.vscode-fluent-bit)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit)
-[![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/sh-cho.vscode-fluent-bit)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit)
-[![Visual Studio Marketplace Rating](https://img.shields.io/visual-studio-marketplace/r/sh-cho.vscode-fluent-bit)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit&ssr=false#review-details)
+| registry | link | Info |
+| :--- | :--- | :--- |
+| Visual Studio Marketplace | [![Visual Studio Marketplace](https://img.shields.io/badge/-Visual_Studio_Marketplace-007ACC)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit) | ![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/sh-cho.vscode-fluent-bit) ![Visual Studio Marketplace Installs](https://img.shields.io/visual-studio-marketplace/i/sh-cho.vscode-fluent-bit) ![Visual Studio Marketplace Downloads](https://img.shields.io/visual-studio-marketplace/d/sh-cho.vscode-fluent-bit) ![Visual Studio Marketplace Rating](https://img.shields.io/visual-studio-marketplace/r/sh-cho.vscode-fluent-bit) |
+| Open VSX Registry | [![Visual Studio Marketplace](https://img.shields.io/badge/-Open_VSX_Registry-A60EE5)](https://open-vsx.org/extension/sh-cho/vscode-fluent-bit) | ![Open VSX Version](https://img.shields.io/open-vsx/v/sh-cho/vscode-fluent-bit?label=version) ![Open VSX Downloads](https://img.shields.io/open-vsx/dt/sh-cho/vscode-fluent-bit) ![Open VSX Rating](https://img.shields.io/open-vsx/rating/sh-cho/vscode-fluent-bit) |
 
 This extension provide support for [fluent-bit](https://fluentbit.io/) config file, with [LSP(Language Server Protocol)](https://microsoft.github.io/language-server-protocol/) implementation.
 
