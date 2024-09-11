@@ -21,7 +21,7 @@ with [tower-lsp](https://github.com/ebkalderon/tower-lsp), [tree-sitter-fluentbi
 
 ## Clients
 
-- [Visual Studio Code](./clients/vscode)
+- [Visual Studio Code](./clients/vscode) [![Visual Studio Marketplace](https://img.shields.io/badge/-Visual_Studio_Marketplace-007ACC)](https://marketplace.visualstudio.com/items?itemName=sh-cho.vscode-fluent-bit) [![Visual Studio Marketplace](https://img.shields.io/badge/-Open_VSX_Registry-A60EE5)](https://open-vsx.org/extension/sh-cho/vscode-fluent-bit)
 - nvim (TBD)
 - helix (TBD)
 
