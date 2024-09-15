@@ -245,30 +245,35 @@ mod tests {
     fn flb_plugin_deserialize() {
         let plugin: FlbPlugin = serde_json::from_str(
             r#"{
-                "options": [
-                    {
-                        "name": "host",
-                        "description": "Host Address",
-                        "default": "",
-                        "type": "string"
-                    }
-                ],
-                "networking": [
-                    {
-                        "name": "net.dns.mode",
-                        "description": "Select the primary DNS connection type (TCP or UDP)",
-                        "default": null,
-                        "type": "string"
-                    }
-                ]
+                "type": "custom",
+                "name": "vince",
+                "description": "this is vince plugin",
+                "properties": {
+                    "options": [
+                        {
+                            "name": "host",
+                            "description": "Host Address",
+                            "default": "",
+                            "type": "string"
+                        }
+                    ],
+                    "networking": [
+                        {
+                            "name": "net.dns.mode",
+                            "description": "Select the primary DNS connection type (TCP or UDP)",
+                            "default": null,
+                            "type": "string"
+                        }
+                    ]
+                }
             }"#,
         )
         .unwrap();
 
         assert_eq!(plugin, FlbPlugin {
             type_: FlbSectionType::Custom,
-            name: "custom".to_string(),
-            description: "custom".to_string(),
+            name: "vince".to_string(),
+            description: "this is vince plugin".to_string(),
             properties: vec![FlbProperty {
                 type_: FlbPropertyType::String,
                 name: "host".to_string(),
