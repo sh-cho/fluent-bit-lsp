@@ -9,31 +9,15 @@ import {
   LanguageClientOptions,
   ServerOptions,
 } from "vscode-languageclient/node";
-import * as vscode from "vscode";
+import { bootstrap } from "./bootstrap";
 
 let client: LanguageClient;
 
 export async function activate(context: ExtensionContext) {
-  // TODO: bootstrap debug, release
-  // const traceOutputChannel = window.createOutputChannel("fluent-bit language server trace");
-  // const command = process.env.SERVER_PATH || "fluent-bit-language-server";
-
-  // Use bundled server only for now
-  const ext = process.platform === "win32" ? ".exe" : "";
-  const bundled = vscode.Uri.joinPath(context.extensionUri, "server", `fluent-bit-language-server${ext}`);
-  const bundledExists = await fileExists(bundled);
-
-  if (!bundledExists) {
-    await vscode.window.showErrorMessage(
-      "Unfortunately we don't ship binaries for your platform yet." +
-      "Please build and run the server manually from the source code." +
-      "Or, please create an issue on repository."
-    );
-    return;
-  }
+  const path = await bootstrap(context);
 
   const run: Executable = {
-    command: bundled.fsPath,
+    command: path,
     options: {
       env: {
         ...process.env
@@ -68,13 +52,6 @@ export async function activate(context: ExtensionContext) {
 
   console.log("Running fluent-bit extension");
   await client.start();
-}
-
-async function fileExists(uri: vscode.Uri) {
-  return await vscode.workspace.fs.stat(uri).then(
-    () => true,
-    () => false,
-  );
 }
 
 export function deactivate(): Thenable<void> | undefined {
