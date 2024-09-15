@@ -71,7 +71,7 @@
       "patterns": [
         {
           "name": "keyword.other.entry.fluent-bit",
-          "match": "^\\s*\\b\\w+(\\.\\w+)*\\b\\s+"
+          "match": "^\\s*\\b[A-Za-z0-9_-]+(\\.[A-Za-z0-9_-]+)*\\b\\s+"
         },
         {
           "name": "comment.line.number-sign.fluent-bit",

@@ -21,5 +21,7 @@ async fn main() {
     })
     .finish();
 
+    // TODO: support other commands (e.g. `--version`)
+
     Server::new(stdin, stdout, socket).serve(service).await;
 }

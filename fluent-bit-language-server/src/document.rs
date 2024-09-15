@@ -35,10 +35,10 @@ impl TextDocument {
         let rope = Rope::from_str(text);
         let mut parser = Parser::new();
 
-        let language = tree_sitter_fluentbit::language();
+        let language = tree_sitter_fluentbit::LANGUAGE;
 
         parser
-            .set_language(&language)
+            .set_language(&language.into())
             .expect("set parser language should always succeed");
 
         let tree = parser
