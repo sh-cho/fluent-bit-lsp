@@ -36,3 +36,7 @@ When it is ready, I will update this section. 🙏
 ## License
 
 Licensed under either of [Apache License Version 2.0](LICENSE-APACHE) or [MIT License](LICENSE-MIT) at your option.
+
+
+<!-- Analytics -->
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=5616ddac-9734-42c7-a7c1-43da139f146f" />
