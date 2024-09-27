@@ -25,3 +25,7 @@ If you find any bugs or have feature requests, please open an issue on the repos
 
 ## License
 Licensed under either of Apache License Version 2.0 or MIT License at your option.
+
+
+<!-- Analytics -->
+<img referrerpolicy="no-referrer-when-downgrade" src="https://static.scarf.sh/a.png?x-pxid=009d7ab8-87f6-44ae-873a-550153d0cea4" />
