@@ -49,19 +49,4 @@ async function fileExists(uri: vscode.Uri) {
   );
 }
 
-// TODO
-// export function isValidExecutable(path: string, extraEnv: Env): boolean {
-//   log.debug("Checking availability of a binary at", path);
-
-//   const res = spawnSync(path, ["--version"], {
-//       encoding: "utf8",
-//       env: { ...process.env, ...extraEnv },
-//   });
-
-//   if (res.error) {
-//       log.warn(path, "--version:", res);
-//   } else {
-//       log.info(path, "--version:", res);
-//   }
-//   return res.status === 0;
-// }
+// TODO: check availability of the server binary
