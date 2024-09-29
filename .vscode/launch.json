@@ -7,7 +7,9 @@
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/clients/vscode"
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/clients/vscode",
+        "--log sh-cho.vscode-fluent-bit:debug"
       ],
       "outFiles": [
         "${workspaceFolder}/clients/vscode/out/**/*.js"
@@ -18,6 +20,27 @@
       ],
       "env": {
         "__FLB_LSP_SERVER_DEBUG": "${workspaceFolder}/target/debug/fluent-bit-language-server"
+      }
+    },
+    {
+      "name": "Run Extension (Release Build)",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--disable-extensions",
+        "--extensionDevelopmentPath=${workspaceFolder}/clients/vscode",
+        "--log sh-cho.vscode-fluent-bit:debug"
+      ],
+      "outFiles": [
+        "${workspaceFolder}/clients/vscode/out/**/*.js"
+      ],
+      "preLaunchTask": "Build Server (Release) and Extension",
+      "skipFiles": [
+        "<node_internals>/**/*.js"
+      ],
+      "env": {
+        "__FLB_LSP_SERVER_DEBUG": "${workspaceFolder}/target/release/fluent-bit-language-server"
       }
     }
   ]
