@@ -4,7 +4,7 @@ import * as os from "os";
 export async function bootstrap(
   context: vscode.ExtensionContext
 ): Promise<string> {
-  const path = await getServers(context);
+  const path = await getServer(context);
   if (!path) {
     throw new Error("fluent-bit-language-server is not available.");
   }
@@ -16,7 +16,7 @@ export async function bootstrap(
   return path;
 }
 
-async function getServers(
+async function getServer(
   context: vscode.ExtensionContext
 ): Promise<string | undefined> {
   // check if the server path is configured explicitly
