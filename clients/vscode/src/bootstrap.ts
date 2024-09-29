@@ -40,6 +40,8 @@ async function getServer(
     );
     return;
   }
+
+  return bundled.fsPath;
 }
 
 async function fileExists(uri: vscode.Uri) {
