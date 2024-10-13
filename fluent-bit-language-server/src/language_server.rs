@@ -1,4 +1,4 @@
-use std::{collections::HashMap, str::FromStr};
+use std::{collections::HashMap, str::FromStr, sync::Arc};
 
 use flb_schema::section::FlbSectionType;
 use ropey::Rope;
@@ -26,7 +26,7 @@ use crate::{
 
 pub struct Backend {
     pub(crate) client: Client,
-    pub(crate) map: RwLock<HashMap<Url, TextDocument>>,
+    pub(crate) map: Arc<RwLock<HashMap<Url, TextDocument>>>,
 }
 
 impl Backend {

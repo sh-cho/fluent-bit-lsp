@@ -1,4 +1,4 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, sync::Arc};
 
 use tokio::sync::RwLock;
 use tower_lsp::{LspService, Server};
@@ -17,7 +17,7 @@ async fn main() {
 
     let (service, socket) = LspService::build(|client| Backend {
         client,
-        map: RwLock::new(HashMap::new()),
+        map: Arc::new(RwLock::new(HashMap::new())),
     })
     .finish();
 
