@@ -10,10 +10,11 @@ use tower_lsp::{
         CompletionResponse, Diagnostic, DiagnosticOptions, DiagnosticServerCapabilities,
         DidChangeTextDocumentParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
         DocumentDiagnosticParams, DocumentDiagnosticReport, DocumentDiagnosticReportResult,
-        FullDocumentDiagnosticReport, Hover, HoverContents, HoverParams, HoverProviderCapability,
-        InitializeParams, InitializeResult, InitializedParams, MessageType, Position, Range,
-        RelatedFullDocumentDiagnosticReport, ServerCapabilities, TextDocumentContentChangeEvent,
-        TextDocumentPositionParams, TextDocumentSyncCapability, TextDocumentSyncKind, Url,
+        FullDocumentDiagnosticReport, Hover, HoverParams, HoverProviderCapability,
+        InitializeParams, InitializeResult, InitializedParams, MarkupKind, MessageType, Position,
+        Range, RelatedFullDocumentDiagnosticReport, ServerCapabilities,
+        TextDocumentContentChangeEvent, TextDocumentPositionParams, TextDocumentSyncCapability,
+        TextDocumentSyncKind, Url,
     },
     Client, LanguageServer,
 };
@@ -27,9 +28,15 @@ use crate::{
 pub struct Backend {
     pub(crate) client: Client,
     pub(crate) map: Arc<RwLock<HashMap<Url, TextDocument>>>,
+    pub(crate) markup_kind: Arc<RwLock<MarkupKind>>,
 }
 
 impl Backend {
+    pub async fn set_markup_kind(&self, kind: MarkupKind) {
+        let mut wr = self.markup_kind.write().await;
+        *wr = kind;
+    }
+
     pub async fn open_file(&self, url: &Url, source_code: &str) {
         let mut wr = self.map.write().await;
         wr.insert(url.clone(), TextDocument::new(source_code));
@@ -221,7 +228,20 @@ impl Backend {
 
 #[tower_lsp::async_trait]
 impl LanguageServer for Backend {
-    async fn initialize(&self, _: InitializeParams) -> JsonRpcResult<InitializeResult> {
+    async fn initialize(&self, params: InitializeParams) -> JsonRpcResult<InitializeResult> {
+        params
+            .capabilities
+            .general
+            .and_then(|c| c.markdown)
+            .map(|_| self.set_markup_kind(MarkupKind::Markdown));
+
+        // self.client
+        //     .log_message(
+        //         MessageType::INFO,
+        //         serde_json::to_string(&params).unwrap().to_string(),
+        //     )
+        //     .await;
+
         Ok(InitializeResult {
             server_info: None,
             capabilities: ServerCapabilities {
@@ -335,10 +355,8 @@ impl LanguageServer for Backend {
                 .await?;
             let param_info = get_hover_info(&section_type, &key)?;
 
-            Some(Hover {
-                contents: HoverContents::Markup(param_info.into()),
-                range: None,
-            })
+            let markup_kind = self.markup_kind.read().await.clone();
+            Some(param_info.to_hover(markup_kind))
         }
         .await;
 
@@ -374,7 +392,8 @@ impl LanguageServer for Backend {
             .await;
 
         if let Some(section) = section_type {
-            ret.extend(get_completion(&section));
+            let markup_kind = self.markup_kind.read().await.clone();
+            ret.extend(get_completion(&section, markup_kind));
         } else {
             return Ok(None);
         }
