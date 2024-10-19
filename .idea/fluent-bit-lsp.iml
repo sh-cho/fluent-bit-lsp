@@ -5,6 +5,7 @@
       <sourceFolder url="file://$MODULE_DIR$/fluent-bit-language-server/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/xtask/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/flb-schema/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/clients/vscode/out" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />
