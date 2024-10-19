@@ -327,24 +327,22 @@ impl LanguageServer for Backend {
             row: position.line as usize,
             column: position.character as usize,
         };
-        let Some(key) = self.get_key_at_point(&text_document.uri, &point).await else {
-            return Ok(None);
-        };
-        let Some(section_type) = self
-            .get_section_type_at_point(&text_document.uri, &point)
-            .await
-        else {
-            return Ok(None);
-        };
 
-        let Some(param_info) = get_hover_info(&section_type, &key) else {
-            return Ok(None);
-        };
+        let hover = async {
+            let key = self.get_key_at_point(&text_document.uri, &point).await?;
+            let section_type = self
+                .get_section_type_at_point(&text_document.uri, &point)
+                .await?;
+            let param_info = get_hover_info(&section_type, &key)?;
 
-        Ok(Some(Hover {
-            contents: HoverContents::Markup(param_info.into()),
-            range: None,
-        }))
+            Some(Hover {
+                contents: HoverContents::Markup(param_info.into()),
+                range: None,
+            })
+        }
+        .await;
+
+        Ok(hover)
     }
 
     // TODO: Supply snippet only when there's no "Name" entry
