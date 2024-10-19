@@ -1,7 +1,7 @@
 use std::{collections::HashMap, sync::Arc};
 
 use tokio::sync::RwLock;
-use tower_lsp::{LspService, Server};
+use tower_lsp::{lsp_types::MarkupKind, LspService, Server};
 
 use crate::language_server::Backend;
 
@@ -18,6 +18,7 @@ async fn main() {
     let (service, socket) = LspService::build(|client| Backend {
         client,
         map: Arc::new(RwLock::new(HashMap::new())),
+        markup_kind: Arc::new(RwLock::new(MarkupKind::PlainText)),
     })
     .finish();
 

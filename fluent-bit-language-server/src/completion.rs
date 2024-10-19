@@ -6,8 +6,8 @@ use flb_schema::section::FlbSectionType;
 #[allow(unused_imports)]
 use once_cell::sync::Lazy;
 use tower_lsp::lsp_types::{
-    CompletionItem, CompletionItemKind, CompletionItemLabelDetails, Documentation,
-    InsertTextFormat, InsertTextMode, MarkupContent, MarkupKind,
+    CompletionItem, CompletionItemKind, CompletionItemLabelDetails, Documentation, Hover,
+    HoverContents, InsertTextFormat, InsertTextMode, MarkupContent, MarkupKind,
 };
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -16,16 +16,19 @@ pub(crate) struct FlbConfigParameterInfo {
     pub(crate) description: String,
 }
 
-impl From<FlbConfigParameterInfo> for MarkupContent {
-    fn from(info: FlbConfigParameterInfo) -> Self {
-        let mut value = info.description.clone();
-        if let Some(default_value) = info.default_value {
+impl FlbConfigParameterInfo {
+    pub fn to_hover(&self, markup_kind: MarkupKind) -> Hover {
+        let mut value = self.description.clone();
+        if let Some(default_value) = &self.default_value {
             value.push_str(format!("\n\n(Default: `{}`)", default_value).as_str());
         }
 
-        MarkupContent {
-            kind: MarkupKind::Markdown,
-            value,
+        Hover {
+            contents: HoverContents::Markup(MarkupContent {
+                kind: markup_kind,
+                value,
+            }),
+            range: None,
         }
     }
 }
@@ -106,13 +109,30 @@ impl FlbCompletionSnippet {
 
         ret
     }
+
+    // TODO: cache
+    pub fn documentation_plaintext(&self) -> String {
+        let mut ret = format!("{}: {}\n\n", self.plugin_name, self.label);
+
+        ret.push_str("[parameters]\n");
+        for param in &self.config_params {
+            ret.push_str(format!("- {}: {}\n", param.key, param.info.description).as_str());
+        }
+
+        ret
+    }
 }
 
 pub fn snippet_to_completion(
     snippet: FlbCompletionSnippet,
     section_type: &FlbSectionType,
+    markup_kind: MarkupKind,
 ) -> CompletionItem {
     let insert_text = snippet.props_to_insert_text();
+    let documentation_string = match markup_kind {
+        MarkupKind::PlainText => snippet.documentation_plaintext(),
+        MarkupKind::Markdown => snippet.documentation_markdown,
+    };
 
     CompletionItem {
         kind: Some(CompletionItemKind::SNIPPET),
@@ -122,8 +142,8 @@ pub fn snippet_to_completion(
             description: Some(format!("{} plugin", section_type)),
         }),
         documentation: Some(Documentation::MarkupContent(MarkupContent {
-            kind: MarkupKind::Markdown,
-            value: snippet.documentation_markdown,
+            kind: markup_kind,
+            value: documentation_string,
         })),
         insert_text_mode: Some(InsertTextMode::ADJUST_INDENTATION),
         insert_text_format: Some(InsertTextFormat::SNIPPET),
@@ -234,12 +254,15 @@ macro_rules! add_snippet {
 
 include!("schema.generated.rs");
 
-pub fn get_completion(section_type: &FlbSectionType) -> Vec<CompletionItem> {
+pub fn get_completion(
+    section_type: &FlbSectionType,
+    markup_kind: MarkupKind,
+) -> Vec<CompletionItem> {
     FLB_DATA
         .get_snippets(section_type)
         .unwrap_or(&vec![])
         .iter()
-        .map(|snippet| snippet_to_completion(snippet.clone(), section_type))
+        .map(|snippet| snippet_to_completion(snippet.clone(), section_type, markup_kind.clone()))
         .collect()
 }
 
